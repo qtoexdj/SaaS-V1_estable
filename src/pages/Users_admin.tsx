@@ -1,9 +1,11 @@
 import { FC, useEffect, useState } from 'react';
-import { Table, message, Button, Modal, Form, Input, Switch, Space, Tag, Select, Popconfirm } from 'antd';
+import { Table, message, Button, Modal, Form, Input, Switch, Space, Tag, Select, Popconfirm, theme, Typography, Grid } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../config/supabase';
+
+const { Title } = Typography;
 
 interface User {
   id: string;
@@ -23,8 +25,27 @@ export const UsersAdmin: FC = () => {
   const [editingRecord, setEditingRecord] = useState<User | null>(null);
   const [form] = Form.useForm();
   const { user } = useAuth();
+  const { token } = theme.useToken();
+  const screens = Grid.useBreakpoint();
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const getResponsiveColumns = () => {
+    const baseColumns = columns.filter(column => {
+      if (screens.xs) {
+        // En móviles solo mostrar nombre, estado y acciones
+        return ['nombre', 'activo', 'actions'].includes(column.key as string);
+      }
+      if (screens.sm) {
+        // En tablets agregar email y rol
+        return ['nombre', 'email', 'user_rol', 'activo', 'actions'].includes(column.key as string);
+      }
+      // En desktop mostrar todas las columnas
+      return true;
+    });
+
+    return baseColumns;
+  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -89,17 +110,20 @@ export const UsersAdmin: FC = () => {
       dataIndex: 'nombre',
       key: 'nombre',
       sorter: (a, b) => (a.nombre || '').localeCompare(b.nombre || ''),
+      ellipsis: true,
     },
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
       sorter: (a, b) => a.email.localeCompare(b.email),
+      ellipsis: true,
     },
     {
       title: 'Teléfono',
       dataIndex: 'telefono',
       key: 'telefono',
+      ellipsis: true,
     },
     {
       title: 'Rol',
@@ -117,6 +141,7 @@ export const UsersAdmin: FC = () => {
         { text: 'Vendedor', value: 'vende' },
       ],
       onFilter: (value, record) => record.user_rol === value,
+      width: 120,
     },
     {
       title: 'Estado',
@@ -132,6 +157,7 @@ export const UsersAdmin: FC = () => {
         { text: 'Inactivo', value: false },
       ],
       onFilter: (value, record) => record.activo === value,
+      width: 100,
     },
     {
       title: 'Fecha de Creación',
@@ -140,36 +166,70 @@ export const UsersAdmin: FC = () => {
       render: (date: string) => new Date(date).toLocaleDateString(),
       sorter: (a, b) => 
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      width: 150,
     },
     {
       title: 'Acciones',
       key: 'actions',
+      fixed: 'right',
+      width: 150,
       render: (_, record) => (
         <Space>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            Editar
-          </Button>
-          <Popconfirm
-            title="Eliminar Usuario"
-            description="¿Estás seguro de que quieres eliminar este usuario?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Sí"
-            cancelText="No"
-            okButtonProps={{ danger: true }}
-          >
-            <Button
-              type="link"
-              danger
-              icon={<DeleteOutlined />}
-              loading={deletingId === record.id}
-            >
-              Eliminar
-            </Button>
-          </Popconfirm>
+          {screens.xs ? (
+            // Versión compacta para móviles
+            <>
+              <Button
+                type="text"
+                size="small"
+                icon={<EditOutlined />}
+                onClick={() => handleEdit(record)}
+              />
+              <Popconfirm
+                title="Eliminar Usuario"
+                description="¿Estás seguro?"
+                onConfirm={() => handleDelete(record.id)}
+                okText="Sí"
+                cancelText="No"
+                okButtonProps={{ danger: true }}
+              >
+                <Button
+                  type="text"
+                  size="small"
+                  danger
+                  icon={<DeleteOutlined />}
+                  loading={deletingId === record.id}
+                />
+              </Popconfirm>
+            </>
+          ) : (
+            // Versión completa para tablets y desktop
+            <>
+              <Button
+                type="link"
+                icon={<EditOutlined />}
+                onClick={() => handleEdit(record)}
+              >
+                Editar
+              </Button>
+              <Popconfirm
+                title="Eliminar Usuario"
+                description="¿Estás seguro de que quieres eliminar este usuario?"
+                onConfirm={() => handleDelete(record.id)}
+                okText="Sí"
+                cancelText="No"
+                okButtonProps={{ danger: true }}
+              >
+                <Button
+                  type="link"
+                  danger
+                  icon={<DeleteOutlined />}
+                  loading={deletingId === record.id}
+                >
+                  Eliminar
+                </Button>
+              </Popconfirm>
+            </>
+          )}
         </Space>
       ),
     },
@@ -177,7 +237,6 @@ export const UsersAdmin: FC = () => {
 
   const fetchUsers = async () => {
     try {
-      // Primero obtenemos el inmobiliaria_id del usuario actual
       const { data: userDetails, error: userError } = await supabase
         .from('usuarios')
         .select('inmobiliaria_id')
@@ -186,7 +245,6 @@ export const UsersAdmin: FC = () => {
 
       if (userError) throw userError;
 
-      // Luego obtenemos todos los usuarios que comparten el mismo inmobiliaria_id
       const { data, error } = await supabase
         .from('usuarios')
         .select('*')
@@ -212,21 +270,57 @@ export const UsersAdmin: FC = () => {
   }, [user?.app_metadata?.inmobiliaria_id]);
 
   return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
-        <h1>Usuarios de la Inmobiliaria</h1>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      height: '100%',
+      gap: token.padding 
+    }}>
+      <div style={{ 
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: token.marginLG 
+      }}>
+        <Title
+          level={screens.xs ? 5 : 4}
+          style={{
+            margin: 0,
+            fontSize: screens.xs ? '16px' : undefined
+          }}
+        >
+          <Space size={screens.xs ? 'small' : 'middle'}>
+            <UserOutlined />
+            {screens.xs ? 'Usuarios' : 'Usuarios de la Inmobiliaria'}
+          </Space>
+        </Title>
       </div>
 
       <Table<User>
-        columns={columns}
+        columns={getResponsiveColumns()}
         dataSource={users}
         rowKey="id"
         loading={loading}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `Total: ${total} usuarios`,
+        scroll={{
+          x: screens.xs ? 400 : screens.sm ? 800 : 1000,
+          y: 'calc(100vh - 280px)'
         }}
+        pagination={{
+          pageSize: screens.xs ? 5 : 10,
+          showSizeChanger: !screens.xs,
+          ...(screens.xs ? {} : {
+            showTotal: (total) => `Total: ${total} usuarios`
+          }),
+          position: ['bottomCenter'],
+          showQuickJumper: !screens.xs,
+          size: screens.xs ? 'small' : 'default'
+        }}
+        style={{
+          flex: 1,
+          backgroundColor: token.colorBgContainer,
+          borderRadius: token.borderRadiusLG,
+        }}
+        size={screens.xs ? 'small' : 'middle'}
       />
 
       <Modal
@@ -235,12 +329,18 @@ export const UsersAdmin: FC = () => {
         onOk={handleEditSubmit}
         onCancel={() => setEditModalVisible(false)}
         destroyOnClose
-        width={600}
+        width={screens.xs ? '95%' : screens.sm ? '80%' : 600}
+        style={{ top: screens.xs ? 0 : 100 }}
+        centered={!screens.xs}
       >
         <Form
           form={form}
           layout="vertical"
           initialValues={{ activo: true }}
+          size={screens.xs ? "middle" : "large"}
+          style={{
+            padding: screens.xs ? '8px 0' : '16px 0'
+          }}
         >
           <Form.Item
             name="nombre"

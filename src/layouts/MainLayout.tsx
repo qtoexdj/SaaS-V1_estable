@@ -1,6 +1,17 @@
-import React, { useMemo, useState } from 'react';
-import { Layout, Menu, theme, Dropdown, Space, Typography, Button } from 'antd';
-import { UserOutlined, LogoutOutlined, HomeOutlined, TeamOutlined, ProjectOutlined, ContactsOutlined, NotificationOutlined, MessageOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Layout, Menu, theme, Dropdown, Space, Typography, Button, Spin, Avatar } from 'antd';
+import { 
+  UserOutlined, 
+  LogoutOutlined, 
+  HomeOutlined, 
+  TeamOutlined, 
+  ProjectOutlined, 
+  ContactsOutlined, 
+  NotificationOutlined, 
+  MessageOutlined, 
+  MenuUnfoldOutlined, 
+  MenuFoldOutlined 
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -14,138 +25,181 @@ interface MainLayoutProps {
 export const MainLayout = ({ children }: MainLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
-  const { role, user, inmobiliariaName, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
-  };
-
   const userMenuItems = [
     {
-      key: 'logout',
+      key: '1',
       icon: <LogoutOutlined />,
       label: 'Cerrar Sesión',
-      onClick: handleLogout,
-    },
+      onClick: async () => {
+        try {
+          await signOut();
+        } catch (error) {
+          console.error('Error al cerrar sesión:', error);
+        }
+      },
+    }
   ];
 
-  const menuItems = useMemo(() => {
+  const menuItems = React.useMemo(() => {
     const items = [
       {
         key: 'dashboard',
-        icon: <UserOutlined />,
+        icon: <HomeOutlined />,
         label: 'Dashboard',
         onClick: () => navigate('/dashboard'),
       }
     ];
 
+    const role = user?.user_rol;
+
     if (role === 'dev') {
-      items.push({
-        key: 'real-estate',
-        icon: <HomeOutlined />,
-        label: 'Inmobiliarias',
-        onClick: () => navigate('/real-estate'),
-      },
-      {
-        key: 'users',
-        icon: <TeamOutlined />,
-        label: 'Usuarios',
-        onClick: () => navigate('/users'),
-      },
-      {
-        key: 'projects',
-        icon: <HomeOutlined />,
-        label: 'Proyectos',
-        onClick: () => navigate('/projects-dev'),
-      });
-    } else if (role === 'admin') {
       items.push(
         {
-          key: 'sellers',
-          icon: <TeamOutlined />,
-          label: 'Vendedores',
-          onClick: () => navigate('/users-admin'),
+          key: 'real-estate',
+          icon: <HomeOutlined />,
+          label: 'Inmobiliarias',
+          onClick: () => navigate('/dev/real-estate'),
         },
         {
-          key: 'prospects',
-          icon: <ContactsOutlined />,
-          label: 'Prospectos',
-          onClick: () => navigate('/prospects-admin'),
+          key: 'users',
+          icon: <TeamOutlined />,
+          label: 'Usuarios',
+          onClick: () => navigate('/dev/users'),
         },
         {
           key: 'projects',
           icon: <ProjectOutlined />,
           label: 'Proyectos',
-          onClick: () => navigate('/projects-admin'),
+          onClick: () => navigate('/dev/projects'),
+        }
+      );
+    } else if (role === 'admin') {
+      items.push(
+        {
+          key: 'users',
+          icon: <TeamOutlined />,
+          label: 'Vendedores',
+          onClick: () => navigate('/admin/users'),
+        },
+        {
+          key: 'prospects',
+          icon: <ContactsOutlined />,
+          label: 'Prospectos',
+          onClick: () => navigate('/admin/prospects'),
+        },
+        {
+          key: 'projects',
+          icon: <ProjectOutlined />,
+          label: 'Proyectos',
+          onClick: () => navigate('/admin/projects'),
         },
         {
           key: 'push-campaigns',
           icon: <NotificationOutlined />,
           label: 'Campañas Push',
-          onClick: () => navigate('/push-campaigns-admin'),
+          onClick: () => navigate('/admin/push-campaigns'),
         },
         {
           key: 'chat',
           icon: <MessageOutlined />,
           label: 'Chat',
-          onClick: () => navigate('/chat-admin'),
+          onClick: () => navigate('/admin/chat'),
+        },
+        {
+          key: 'inmobiliaria',
+          icon: <HomeOutlined />,
+          label: 'Inmobiliaria',
+          onClick: () => navigate('/admin/inmobiliaria'),
         }
       );
     }
 
+    // Agregar enlaces de perfil y configuración al final del menú
+    items.push(
+      {
+        key: 'profile',
+        icon: <UserOutlined />,
+        label: 'Perfil',
+        onClick: () => navigate('/profile'),
+      }
+    );
+
     return items;
-  }, [role, navigate]);
+  }, [navigate, user?.user_rol]);
+
+  if (loading) {
+    return (
+      <div style={{ 
+        height: '100vh', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        background: colorBgContainer 
+      }}>
+        <Spin size="large">
+          <div style={{ padding: '50px' }}>Cargando...</div>
+        </Spin>
+      </div>
+    );
+  }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div style={{ height: 32, margin: 16, background: 'rgba(255, 255, 255, 0.2)' }} />
+    <Layout id="components-layout-demo-custom-trigger" style={{ minHeight: '100vh', height: '100%' }}>
+      <Sider trigger={null} collapsible collapsed={collapsed} style={{ minHeight: '100vh' }}>
+        <div className="logo">
+          {collapsed ? 'S' : 'SaaS'}
+        </div>
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={['1']}
+          defaultSelectedKeys={['dashboard']}
           items={menuItems}
         />
       </Sider>
-      <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Button
-                    type="text"
-                    icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                    onClick={() => setCollapsed(!collapsed)}
-                    style={{
-                      fontSize: '16px',
-                      width: 64,
-                      height: 64,
-                    }}
-                  />
-                  <Space style={{ justifyContent: 'space-between', alignItems: 'center', padding: '0 24px' }}>
-                    {inmobiliariaName && (
-                      <Text strong style={{ fontSize: 16 }}>
-                        {inmobiliariaName}
-                      </Text>
-                    )}
-                    <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
+      <Layout className="site-layout" style={{ minHeight: '100vh' }}>
+        <Header style={{ padding: 0, background: colorBgContainer }}>
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            className="trigger"
+          />
+          <Space style={{ float: 'right', marginRight: 24 }}>
+            <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
               <Space style={{ cursor: 'pointer' }}>
-                <UserOutlined />
-                <Text>{user?.nombre} {role ? `(${role})` : ''}</Text>
+                <Avatar
+                  src={user?.user_metadata?.avatar_url}
+                  icon={<UserOutlined />}
+                  style={{
+                    backgroundColor: user?.user_metadata?.avatar_url ? 'transparent' : '#1890ff',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                />
+                <Text strong>
+                  {user?.nombre ?? 'Usuario'}
+                  {user?.user_rol ? ` (${user.user_rol})` : ''}
+                </Text>
               </Space>
             </Dropdown>
           </Space>
-                  </Header>
-                  <Content style={{
-                      margin: '24px 16px',
+        </Header>
+        <Content
+          className="site-layout-background"
+          style={{
+            margin: '24px 16px',
             padding: 24,
-            background: colorBgContainer,
+            minHeight: 'calc(100vh - 112px)', // 64px header + 24px margin top + 24px margin bottom
             borderRadius: borderRadiusLG,
+            flex: 1
           }}
         >
           {children}
@@ -154,3 +208,5 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
     </Layout>
   );
 };
+
+export default MainLayout;

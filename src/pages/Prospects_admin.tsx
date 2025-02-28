@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { PageHeader } from '@ant-design/pro-layout';
-import { List, Card, Tag, Input, Select, Space, Button, Modal, Form, DatePicker, Row, Col, Typography, Divider } from 'antd';
+import { List, Card, Tag, Input, Select, Space, Button, Modal, Form, DatePicker, Row, Col, Typography, Divider, Grid } from 'antd';
 import { supabase } from '../config/supabase';
 import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 const { Search } = Input;
+const { useBreakpoint } = Grid;
 
 interface Prospect {
   id: string;
@@ -43,12 +44,28 @@ const Prospects_admin: React.FC = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
   const [form] = Form.useForm();
+  const screens = useBreakpoint();
 
   const fetchProjects = async () => {
     try {
+      // Obtener el usuario actual para acceder a su inmobiliaria_id
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) throw userError;
+      
+      if (!userData?.user?.app_metadata?.inmobiliaria_id) {
+        console.error('No se encontró el ID de la inmobiliaria del usuario');
+        setLoadingProjects(false);
+        return;
+      }
+      
+      const inmobiliariaId = userData.user.app_metadata.inmobiliaria_id;
+      
+      // Filtrar por inmobiliaria_id para cumplir con las políticas RLS
       const { data, error } = await supabase
         .from('proyectos')
-        .select('id, nombre');
+        .select('id, nombre')
+        .eq('inmobiliaria_id', inmobiliariaId);
 
       if (error) throw error;
 
@@ -62,9 +79,24 @@ const Prospects_admin: React.FC = () => {
 
   const fetchProspects = async () => {
     try {
+      // Obtener el usuario actual para acceder a su inmobiliaria_id
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) throw userError;
+      
+      if (!userData?.user?.app_metadata?.inmobiliaria_id) {
+        console.error('No se encontró el ID de la inmobiliaria del usuario');
+        setLoading(false);
+        return;
+      }
+      
+      const inmobiliariaId = userData.user.app_metadata.inmobiliaria_id;
+      
+      // Filtrar por inmobiliaria_id para cumplir con las políticas RLS
       const { data, error } = await supabase
         .from('prospectos')
-        .select('*');
+        .select('*')
+        .eq('inmobiliaria_id', inmobiliariaId);
 
       if (error) throw error;
 
@@ -93,6 +125,18 @@ const Prospects_admin: React.FC = () => {
     if (!selectedProspect) return;
 
     try {
+      // Obtener el usuario actual para acceder a su inmobiliaria_id
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) throw userError;
+      
+      if (!userData?.user?.app_metadata?.inmobiliaria_id) {
+        console.error('No se encontró el ID de la inmobiliaria del usuario');
+        return;
+      }
+      
+      const inmobiliariaId = userData.user.app_metadata.inmobiliaria_id;
+
       const { error } = await supabase
         .from('prospectos')
         .update({
@@ -101,7 +145,8 @@ const Prospects_admin: React.FC = () => {
           proyecto_interesado: values.proyecto_interesado,
           fecha_proximo_seguimiento: values.fecha_proximo_seguimiento.toISOString(),
         })
-        .eq('id', selectedProspect.id);
+        .eq('id', selectedProspect.id)
+        .eq('inmobiliaria_id', inmobiliariaId); // Filtrar por inmobiliaria_id para cumplir con las políticas RLS
 
       if (error) throw error;
 
@@ -121,10 +166,23 @@ const Prospects_admin: React.FC = () => {
       cancelText: 'No',
       onOk: async () => {
         try {
+          // Obtener el usuario actual para acceder a su inmobiliaria_id
+          const { data: userData, error: userError } = await supabase.auth.getUser();
+          
+          if (userError) throw userError;
+          
+          if (!userData?.user?.app_metadata?.inmobiliaria_id) {
+            console.error('No se encontró el ID de la inmobiliaria del usuario');
+            return;
+          }
+          
+          const inmobiliariaId = userData.user.app_metadata.inmobiliaria_id;
+
           const { error } = await supabase
             .from('prospectos')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .eq('inmobiliaria_id', inmobiliariaId); // Filtrar por inmobiliaria_id para cumplir con las políticas RLS
 
           if (error) throw error;
 
@@ -137,16 +195,19 @@ const Prospects_admin: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Card>
+    <div style={{ padding: screens.xs ? '12px' : '24px' }}>
+      <Card bodyStyle={{ padding: screens.xs ? '12px' : '24px' }}>
         <PageHeader
           title="Prospectos"
-          subTitle="Seguimiento de leads vía WhatsApp – Conversaciones del Chatbot"
+          subTitle={screens.xs ? null : "Seguimiento de leads vía WhatsApp – Conversaciones del Chatbot"}
+          style={{
+            padding: screens.xs ? '0 0 12px' : '0 0 24px'
+          }}
         />
         
         <Space direction="vertical" style={{ marginBottom: 16, width: '100%' }}>
-          <Row gutter={16}>
-            <Col span={8}>
+          <Row gutter={[screens.xs ? 8 : 16, screens.xs ? 8 : 16]}>
+            <Col xs={24} sm={24} md={8}>
               <div style={{ marginBottom: '8px' }}>
                 <Typography.Text>Buscar</Typography.Text>
               </div>
@@ -157,19 +218,20 @@ const Prospects_admin: React.FC = () => {
                 style={{ width: '100%' }}
               />
             </Col>
-            <Col span={8}>
-              <div style={{ marginBottom: '8px' }}>
+            <Col xs={24} sm={24} md={8}>
+              <div style={{ marginBottom: screens.xs ? '4px' : '8px' }}>
                 <Typography.Text>Etapa</Typography.Text>
               </div>
               <Select
-                  style={{ width: '100%' }}
-                  placeholder="Filtrar por etapa"
-                  allowClear
-                  value={etapaFilter}
-                  onChange={value => setEtapaFilter(value)}
-                  popupMatchSelectWidth={false}
-                  defaultOpen={false}
-                >
+                style={{ width: '100%' }}
+                placeholder="Filtrar por etapa"
+                allowClear
+                value={etapaFilter}
+                onChange={value => setEtapaFilter(value)}
+                popupMatchSelectWidth={false}
+                defaultOpen={false}
+                size={screens.xs ? "middle" : "large"}
+              >
                 {etapas.map(etapa => (
                   <Select.Option key={etapa.value} value={etapa.value}>
                     {etapa.label}
@@ -177,8 +239,8 @@ const Prospects_admin: React.FC = () => {
                 ))}
               </Select>
             </Col>
-            <Col span={8}>
-              <div style={{ marginBottom: '8px' }}>
+            <Col xs={24} sm={24} md={8}>
+              <div style={{ marginBottom: screens.xs ? '4px' : '8px' }}>
                 <Typography.Text>Proyecto</Typography.Text>
               </div>
               <Select
@@ -190,6 +252,7 @@ const Prospects_admin: React.FC = () => {
                 loading={loadingProjects}
                 popupMatchSelectWidth={false}
                 defaultOpen={false}
+                size={screens.xs ? "middle" : "large"}
               >
                 {projects.map(project => (
                   <Select.Option key={project.id} value={project.nombre}>
@@ -235,12 +298,29 @@ const Prospects_admin: React.FC = () => {
               <List.Item.Meta
                 title={item.nombre}
                 description={
-                  <Space split={<Divider type="vertical" />} size="middle">
+                  <Space
+                    wrap={screens.xs}
+                    split={screens.xs ? null : <Divider type="vertical" />}
+                    size={screens.xs ? "small" : "middle"}
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: screens.xs ? '4px' : '8px'
+                    }}
+                  >
                     <Tag color={getTagColor(item.etapa)}>{item.etapa}</Tag>
-                    <Typography.Text>📱 {item.numero_whatsapp}</Typography.Text>
-                    <Typography.Text>🏠 {item.proyecto_interesado}</Typography.Text>
-                    <Typography.Text>📆 {item.fecha_proximo_seguimiento ? dayjs(item.fecha_proximo_seguimiento).format('DD/MM/YYYY') : 'No programado'}</Typography.Text>
-                    <Typography.Text>🔁 {item.cantidad_seguimientos} seguimientos</Typography.Text>
+                    <Typography.Text style={{ fontSize: screens.xs ? '13px' : '14px' }}>
+                      📱 {item.numero_whatsapp}
+                    </Typography.Text>
+                    <Typography.Text style={{ fontSize: screens.xs ? '13px' : '14px' }}>
+                      🏠 {screens.xs ? item.proyecto_interesado.substring(0, 15) + '...' : item.proyecto_interesado}
+                    </Typography.Text>
+                    <Typography.Text style={{ fontSize: screens.xs ? '13px' : '14px' }}>
+                      📆 {item.fecha_proximo_seguimiento ? dayjs(item.fecha_proximo_seguimiento).format('DD/MM/YYYY') : 'No programado'}
+                    </Typography.Text>
+                    <Typography.Text style={{ fontSize: screens.xs ? '13px' : '14px' }}>
+                      🔁 {item.cantidad_seguimientos}
+                    </Typography.Text>
                   </Space>
                 }
               />
@@ -253,6 +333,12 @@ const Prospects_admin: React.FC = () => {
           open={viewModalVisible}
           onCancel={() => setViewModalVisible(false)}
           footer={null}
+          width={screens.xs ? '95%' : '520px'}
+          style={{ top: screens.xs ? 20 : 100 }}
+          bodyStyle={{
+            padding: screens.xs ? '12px' : '24px',
+            fontSize: screens.xs ? '14px' : '16px'
+          }}
         >
           {selectedProspect && (
             <div>
@@ -271,11 +357,17 @@ const Prospects_admin: React.FC = () => {
           open={editModalVisible}
           onOk={form.submit}
           onCancel={() => setEditModalVisible(false)}
+          width={screens.xs ? '95%' : '520px'}
+          style={{ top: screens.xs ? 20 : 100 }}
+          bodyStyle={{
+            padding: screens.xs ? '12px' : '24px'
+          }}
         >
           <Form
             form={form}
             layout="vertical"
             onFinish={handleEdit}
+            size={screens.xs ? "middle" : "large"}
           >
             <Form.Item
               name="nombre"

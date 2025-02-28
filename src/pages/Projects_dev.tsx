@@ -16,7 +16,8 @@ import {
   Tag,
   Row,
   Col,
-  theme
+  theme,
+  Divider
 } from 'antd';
 import {
   EnvironmentOutlined,
@@ -25,9 +26,13 @@ import {
   PlusOutlined,
   EyeOutlined,
   HomeOutlined,
+  PictureOutlined
 } from '@ant-design/icons';
 import { supabase } from '../config/supabase';
-import { Project } from '../types/project';
+import { Project, ProjectImage } from '../types/project';
+import ProjectImageGallery from '../components/ProjectImageGallery';
+import ProjectImageUploader from '../components/ProjectImageUploader';
+import { getProjectImages } from '../services/projectImages';
 
 const { Text, Title } = Typography;
 const { Panel } = Collapse;
@@ -51,6 +56,7 @@ const ProjectsContent: React.FC = () => {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [selectedInmobiliariaId, setSelectedInmobiliariaId] = useState<string | null>(null);
+  const [projectImages, setProjectImages] = useState<ProjectImage[]>([]);
 
   // Form y Message
   const [form] = Form.useForm();
@@ -75,10 +81,23 @@ const ProjectsContent: React.FC = () => {
 
       if (projectsError) throw projectsError;
 
+      // Cargar las imágenes para cada proyecto
+      const projectsWithImages = await Promise.all(
+        projectsData.map(async (project: Project) => {
+          try {
+            const images = await getProjectImages(project.id);
+            return { ...project, images };
+          } catch (err) {
+            console.error(`Error al cargar imágenes para el proyecto ${project.id}:`, err);
+            return { ...project, images: [] };
+          }
+        })
+      );
+
       // Agrupar proyectos por inmobiliaria
       const inmobiliariasWithProjects = inmobiliariasData.map((inmobiliaria: Inmobiliaria) => ({
         ...inmobiliaria,
-        projects: projectsData.filter((project: Project) => project.inmobiliaria_id === inmobiliaria.id)
+        projects: projectsWithImages.filter((project: Project) => project.inmobiliaria_id === inmobiliaria.id)
       }));
 
       setInmobiliarias(inmobiliariasWithProjects);
@@ -102,6 +121,7 @@ const ProjectsContent: React.FC = () => {
       ubicacion: project.ubicacion,
       caracteristicas: project.caracteristicas ? JSON.stringify(project.caracteristicas) : ''
     });
+    setProjectImages(project.images || []);
     setIsModalVisible(true);
   };
 
@@ -137,11 +157,14 @@ const ProjectsContent: React.FC = () => {
 
       message.success('Proyecto creado exitosamente');
       
+      // Si hay imágenes, actualizar el proyecto con ellas
+      const projectWithImages = { ...newProject, images: projectImages };
+      
       setInmobiliarias(inmobiliarias.map(inm => {
         if (inm.id === selectedInmobiliariaId) {
           return {
             ...inm,
-            projects: [newProject, ...(inm.projects || [])]
+            projects: [projectWithImages, ...(inm.projects || [])]
           };
         }
         return inm;
@@ -186,7 +209,7 @@ const ProjectsContent: React.FC = () => {
         ...inm,
         projects: inm.projects?.map(p =>
           p.id === editingProject.id
-            ? { ...p, ...values, caracteristicas }
+            ? { ...p, ...values, caracteristicas, images: projectImages }
             : p
         )
       })));
@@ -227,12 +250,14 @@ const ProjectsContent: React.FC = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
     setEditingProject(null);
+    setProjectImages([]);
     form.resetFields();
   };
 
   const handleCancelCreate = () => {
     setIsCreateModalVisible(false);
     setSelectedInmobiliariaId(null);
+    setProjectImages([]);
     form.resetFields();
   };
 
@@ -342,6 +367,16 @@ const ProjectsContent: React.FC = () => {
                                 ))}
                               </Space>
                             )}
+
+                            {/* Galería de imágenes */}
+                            {project.images && project.images.length > 0 && (
+                              <div style={{ marginTop: 8 }}>
+                                <Divider orientation="left" plain style={{ margin: '8px 0' }}>
+                                  <PictureOutlined /> Imágenes
+                                </Divider>
+                                <ProjectImageGallery images={project.images} />
+                              </div>
+                            )}
                           </Card>
                         </List.Item>
                       )}
@@ -390,6 +425,18 @@ const ProjectsContent: React.FC = () => {
             <Input.TextArea rows={4} />
           </Form.Item>
 
+          <Form.Item
+            label="Imágenes del Proyecto"
+            help="Máximo 5 imágenes por proyecto"
+          >
+            <ProjectImageUploader
+              projectId={editingProject?.id || ''}
+              existingImages={projectImages}
+              onImagesChange={setProjectImages}
+              disabled={!editingProject}
+            />
+          </Form.Item>
+
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
             <Button style={{ marginRight: 8 }} onClick={handleCancel}>
               Cancelar
@@ -435,6 +482,18 @@ const ProjectsContent: React.FC = () => {
             help="Ejemplo: {'habitaciones': 3, 'baños': 2}"
           >
             <Input.TextArea rows={4} />
+          </Form.Item>
+
+          <Form.Item
+            label="Imágenes del Proyecto"
+            help="Máximo 5 imágenes por proyecto (Podrá subir imágenes después de crear el proyecto)"
+          >
+            <ProjectImageUploader
+              projectId=""
+              existingImages={[]}
+              onImagesChange={setProjectImages}
+              disabled={true}
+            />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>

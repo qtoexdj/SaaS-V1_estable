@@ -1,42 +1,63 @@
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { Spin } from 'antd';
-import { MainLayout } from '../layouts/MainLayout';
+import { useUserStore, getUserRole, type UserRole } from '../stores/userStore';
 
 interface PrivateRouteProps {
-  children: React.ReactNode;
-  requiredRoles?: string[];
+  children?: React.ReactNode;
+  requiredRoles?: UserRole[];
 }
 
-export const PrivateRoute = ({ children, requiredRoles = [] }: PrivateRouteProps) => {
-  const { user, loading, isAuthenticated } = useAuth();
+export const PrivateRoute = ({ children, requiredRoles }: PrivateRouteProps) => {
   const location = useLocation();
+  const { user, loading, isAuthenticated } = useUserStore();
 
+  // Mostrar spinner mientras se cargan los datos
   if (loading) {
     return (
-      <div style={{ 
-        height: '100vh', 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center' 
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
       }}>
         <Spin size="large" />
       </div>
     );
   }
 
-  if (!isAuthenticated) {
+  // Verificar autenticación básica
+  if (!isAuthenticated || !user) {
+    console.log('[Auth] Usuario no autenticado, redirigiendo a login');
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requiredRoles.length > 0) {
-    const userRoles = user?.app_metadata?.roles || [];
-    const hasRequiredRole = requiredRoles.some(role => userRoles.includes(role));
+  // Verificar que el usuario esté activo
+  if (!user.activo) {
+    console.warn('[Auth] Usuario inactivo');
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-    if (!hasRequiredRole) {
+  // Verificar metadata del JWT
+  const userRole = getUserRole(user);
+  if (!userRole || !user.inmobiliaria_id) {
+    console.warn('[Auth] Metadata de usuario incompleta', {
+      role: userRole,
+      inmobiliaria: user.inmobiliaria_id
+    });
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Verificar roles si se especifican
+  if (requiredRoles && requiredRoles.length > 0) {
+    if (!requiredRoles.includes(userRole)) {
+      console.warn('[Auth] Usuario no tiene el rol requerido', {
+        userRole,
+        requiredRoles
+      });
       return <Navigate to="/unauthorized" replace />;
     }
   }
 
-  return <MainLayout>{children}</MainLayout>;
+  // Todo ok, renderizar la ruta protegida
+  return children ? <>{children}</> : <Outlet />;
 };

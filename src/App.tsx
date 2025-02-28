@@ -1,105 +1,121 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { App as AntApp, ConfigProvider } from 'antd';
+import { AuthMiddleware } from './middleware/auth';
+import { AuthErrorBoundary } from './components/AuthErrorBoundary';
+import { MainLayout } from './layouts/MainLayout';
+import { AuthProvider } from './contexts/AuthContext';
+import { theme } from './styles/theme';
+
+// Páginas
 import { Login } from './pages/Login';
+import { ResetPassword } from './pages/ResetPassword';
 import { Dashboard } from './pages/Dashboard';
-import { RealEstate_dev } from './pages/RealEstate_dev';
-import { Users_dev } from './pages/Users_dev';
-import { UsersAdmin } from './pages/Users_admin';
+import { PrivateRoute } from './components/PrivateRoute';
+import { Unauthorized } from './pages/Unauthorized';
+
+// Admin imports
 import Projects_admin from './pages/Projects_admin';
-import Projects_dev from './pages/Projects_dev';
+import { UsersAdmin } from './pages/Users_admin';
+import Chat_admin from './pages/Chat_admin';
 import Prospects_admin from './pages/Prospects_admin';
 import PushCampaigns_admin from './pages/PushCampaigns_admin';
-import Chat_admin from './pages/Chat_admin';
-import { PrivateRoute } from './components/PrivateRoute';
-import esES from 'antd/locale/es_ES';
+import Inmobiliaria_admin from './pages/Inmobiliaria_admin';
 
-// Configuración del tema de Ant Design
-const theme = {
-  token: {
-    colorPrimary: '#00b96b',
-    borderRadius: 4,
-  },
-};
+// Dev imports
+import Projects_dev from './pages/Projects_dev';
+import { Users_dev } from './pages/Users_dev';
+import { RealEstate_dev } from './pages/RealEstate_dev';
+import Profile from './pages/Profile';
+
+import './App.css';
 
 function App() {
   return (
-    <ConfigProvider theme={theme} locale={esES}>
-      <BrowserRouter>
-        <Routes>
-          {/* Rutas públicas */}
-          <Route path="/login" element={<Login />} />
-          {/* Rutas privadas */}
-          <Route path="/dashboard" element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } />
-          
-          <Route path="/real-estate" element={
-            <PrivateRoute>
-              <RealEstate_dev />
-            </PrivateRoute>
-          } />
-<Route path="/users" element={
-  <PrivateRoute>
-    <Users_dev />
-  </PrivateRoute>
-} />
-<Route path="/users-admin" element={
-  <PrivateRoute>
-    <UsersAdmin />
-  </PrivateRoute>
-} />
+    <ConfigProvider theme={theme}>
+      <AuthErrorBoundary>
+        <AntApp>
+          <Router>
+            <AuthProvider>
+              <AuthMiddleware>
+                <Routes>
+                  {/* Rutas públicas - no requieren autenticación */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/unauthorized" element={<Unauthorized />} />
 
-<Route path="/prospects-admin" element={
-  <PrivateRoute>
-    <Prospects_admin />
-  </PrivateRoute>
-} />
+                  {/* Rutas protegidas */}
+                  <Route path="/" element={<PrivateRoute />}>
+                    {/* Ruta por defecto */}
+                    <Route index element={<Navigate to="/dashboard" replace />} />
+                    
+                    {/* Layout principal para todas las rutas protegidas */}
+                    <Route element={<MainLayout><Outlet /></MainLayout>}>
+                      {/* Dashboard general */}
+                      <Route path="dashboard" element={<Dashboard />} />
+                      
+                      {/* Perfil de usuario */}
+                      <Route path="profile" element={<Profile />} />
 
-<Route path="/projects-admin" element={
-  <PrivateRoute>
-    <Projects_admin />
-  </PrivateRoute>
-} />
+                      {/* Rutas Admin */}
+                      <Route path="admin">
+                        <Route path="projects" element={
+                          <PrivateRoute requiredRoles={['admin']}>
+                            <Projects_admin />
+                          </PrivateRoute>
+                        } />
+                        <Route path="users" element={
+                          <PrivateRoute requiredRoles={['admin']}>
+                            <UsersAdmin />
+                          </PrivateRoute>
+                        } />
+                        <Route path="chat" element={
+                          <PrivateRoute requiredRoles={['admin']}>
+                            <Chat_admin />
+                          </PrivateRoute>
+                        } />
+                        <Route path="prospects" element={
+                          <PrivateRoute requiredRoles={['admin']}>
+                            <Prospects_admin />
+                          </PrivateRoute>
+                        } />
+                        <Route path="push-campaigns" element={
+                          <PrivateRoute requiredRoles={['admin']}>
+                            <PushCampaigns_admin />
+                          </PrivateRoute>
+                        } />
+                        <Route path="inmobiliaria" element={
+                          <PrivateRoute requiredRoles={['admin']}>
+                            <Inmobiliaria_admin />
+                          </PrivateRoute>
+                        } />
+                      </Route>
 
-<Route path="/projects-dev" element={
-  <PrivateRoute>
-    <Projects_dev />
-  </PrivateRoute>
-} />
-
-<Route path="/push-campaigns-admin" element={
-  <PrivateRoute>
-    <PushCampaigns_admin />
-  </PrivateRoute>
-} />
-
-<Route path="/chat-admin" element={
-  <PrivateRoute>
-    <Chat_admin />
-  </PrivateRoute>
-} />
-
-{/* Redirección por defecto */}
-{/* Redirección por defecto */}
-          {/* Redirección por defecto */}
-          {/* Redirección por defecto */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
-          {/* Página 404 */}
-          <Route path="*" element={
-            <div style={{ 
-              height: '100vh', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center' 
-            }}>
-              <h1>404 - Página no encontrada</h1>
-            </div>
-          } />
-        </Routes>
-      </BrowserRouter>
+                      {/* Rutas Dev */}
+                      <Route path="dev">
+                        <Route path="projects" element={
+                          <PrivateRoute requiredRoles={['dev']}>
+                            <Projects_dev />
+                          </PrivateRoute>
+                        } />
+                        <Route path="users" element={
+                          <PrivateRoute requiredRoles={['dev']}>
+                            <Users_dev />
+                          </PrivateRoute>
+                        } />
+                        <Route path="real-estate" element={
+                          <PrivateRoute requiredRoles={['dev']}>
+                            <RealEstate_dev />
+                          </PrivateRoute>
+                        } />
+                      </Route>
+                    </Route>
+                  </Route>
+                </Routes>
+              </AuthMiddleware>
+            </AuthProvider>
+          </Router>
+        </AntApp>
+      </AuthErrorBoundary>
     </ConfigProvider>
   );
 }

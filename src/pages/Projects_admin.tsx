@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Card, List, Typography, Spin, Empty, Button, Modal, Form, Input, App, Popconfirm, Space } from 'antd';
-import { EnvironmentOutlined, CalendarOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, List, Typography, Spin, Empty, Button, Modal, Form, Input, App, Popconfirm, Space, Divider } from 'antd';
+import { EnvironmentOutlined, CalendarOutlined, EditOutlined, DeleteOutlined, PictureOutlined } from '@ant-design/icons';
 import { supabase } from '../config/supabase';
-import { Project } from '../types/project';
+import { Project, ProjectImage } from '../types/project';
 import { useAuth } from '../hooks/useAuth';
+import ProjectImageGallery from '../components/ProjectImageGallery';
+import ProjectImageUploader from '../components/ProjectImageUploader';
+import { getProjectImages } from '../services/projectImages';
 
 const { Text, Title } = Typography;
 
@@ -16,9 +19,17 @@ const ProjectsContent: React.FC = () => {
   const [form] = Form.useForm();
   const { message } = App.useApp();
   const { user } = useAuth();
+  const [projectImages, setProjectImages] = useState<ProjectImage[]>([]);
 
   const handleCreate = async (values: any) => {
     try {
+      // Asegurarse de que tenemos el ID de la inmobiliaria del usuario
+      if (!user?.inmobiliaria_id) {
+        console.error('No se encontró el ID de la inmobiliaria del usuario');
+        message.error('Error al crear el proyecto: No se encontró la inmobiliaria');
+        return;
+      }
+
       let caracteristicas = {};
       if (values.caracteristicas) {
         try {
@@ -34,8 +45,9 @@ const ProjectsContent: React.FC = () => {
         .insert([{
           nombre: values.nombre,
           ubicacion: values.ubicacion,
+          cantidad_lotes: values.cantidad_lotes ? parseInt(values.cantidad_lotes) : null,
           caracteristicas,
-          inmobiliaria_id: user?.app_metadata?.inmobiliaria_id
+          inmobiliaria_id: user.inmobiliaria_id // Usar el ID de la inmobiliaria del usuario
         }])
         .select()
         .single();
@@ -43,7 +55,10 @@ const ProjectsContent: React.FC = () => {
       if (error) throw error;
 
       message.success('Proyecto creado exitosamente');
-      setProjects([newProject, ...projects]);
+      
+      // Si hay imágenes, actualizar el proyecto con ellas
+      const projectWithImages = { ...newProject, images: projectImages };
+      setProjects([projectWithImages, ...projects]);
       handleCancelCreate();
     } catch (error) {
       console.error('Error al crear el proyecto:', error);
@@ -53,6 +68,7 @@ const ProjectsContent: React.FC = () => {
 
   const handleCancelCreate = () => {
     setIsCreateModalVisible(false);
+    setProjectImages([]);
     form.resetFields();
   };
 
@@ -61,17 +77,27 @@ const ProjectsContent: React.FC = () => {
     form.setFieldsValue({
       nombre: project.nombre,
       ubicacion: project.ubicacion,
+      cantidad_lotes: project.cantidad_lotes?.toString() || '',
       caracteristicas: project.caracteristicas ? JSON.stringify(project.caracteristicas) : ''
     });
+    setProjectImages(project.images || []);
     setIsModalVisible(true);
   };
 
   const handleDelete = async (projectId: string) => {
     try {
+      // Asegurarse de que tenemos el ID de la inmobiliaria del usuario
+      if (!user?.inmobiliaria_id) {
+        console.error('No se encontró el ID de la inmobiliaria del usuario');
+        message.error('Error al eliminar el proyecto: No se encontró la inmobiliaria');
+        return;
+      }
+
       const { error } = await supabase
         .from('proyectos')
         .delete()
-        .eq('id', projectId);
+        .eq('id', projectId)
+        .eq('inmobiliaria_id', user.inmobiliaria_id); // Filtrar por inmobiliaria_id para cumplir con las políticas RLS
 
       if (error) throw error;
 
@@ -86,6 +112,7 @@ const ProjectsContent: React.FC = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
     setEditingProject(null);
+    setProjectImages([]);
     form.resetFields();
   };
 
@@ -93,6 +120,20 @@ const ProjectsContent: React.FC = () => {
     if (!editingProject) return;
 
     try {
+      // Asegurarse de que tenemos el ID de la inmobiliaria del usuario
+      if (!user?.inmobiliaria_id) {
+        console.error('No se encontró el ID de la inmobiliaria del usuario');
+        message.error('Error al actualizar el proyecto: No se encontró la inmobiliaria');
+        return;
+      }
+
+      // Verificar que el proyecto pertenece a la inmobiliaria del usuario
+      if (editingProject.inmobiliaria_id !== user.inmobiliaria_id) {
+        console.error('El proyecto no pertenece a la inmobiliaria del usuario');
+        message.error('Error al actualizar el proyecto: No tienes permisos para editar este proyecto');
+        return;
+      }
+
       let caracteristicas = {};
       if (values.caracteristicas) {
         try {
@@ -108,18 +149,20 @@ const ProjectsContent: React.FC = () => {
         .update({
           nombre: values.nombre,
           ubicacion: values.ubicacion,
+          cantidad_lotes: values.cantidad_lotes ? parseInt(values.cantidad_lotes) : null,
           caracteristicas,
           updated_at: new Date().toISOString()
         })
-        .eq('id', editingProject.id);
+        .eq('id', editingProject.id)
+        .eq('inmobiliaria_id', user.inmobiliaria_id); // Filtrar por inmobiliaria_id para cumplir con las políticas RLS
 
       if (error) throw error;
 
       message.success('Proyecto actualizado exitosamente');
       
-      setProjects(projects.map(p => 
-        p.id === editingProject.id 
-          ? { ...p, ...values, caracteristicas } 
+      setProjects(projects.map(p =>
+        p.id === editingProject.id
+          ? { ...p, ...values, caracteristicas, images: projectImages }
           : p
       ));
 
@@ -133,16 +176,39 @@ const ProjectsContent: React.FC = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
+        // Asegurarse de que tenemos el ID de la inmobiliaria del usuario
+        if (!user?.inmobiliaria_id) {
+          console.error('No se encontró el ID de la inmobiliaria del usuario');
+          message.error('Error al cargar los proyectos: No se encontró la inmobiliaria');
+          setLoading(false);
+          return;
+        }
+
+        // Filtrar por inmobiliaria_id para cumplir con las políticas RLS
         const { data, error } = await supabase
           .from('proyectos')
           .select('*')
+          .eq('inmobiliaria_id', user.inmobiliaria_id)
           .order('created_at', { ascending: false });
 
         if (error) {
           throw error;
         }
 
-        setProjects(data || []);
+        // Cargar las imágenes para cada proyecto
+        const projectsWithImages = await Promise.all(
+          (data || []).map(async (project) => {
+            try {
+              const images = await getProjectImages(project.id);
+              return { ...project, images };
+            } catch (err) {
+              console.error(`Error al cargar imágenes para el proyecto ${project.id}:`, err);
+              return { ...project, images: [] };
+            }
+          })
+        );
+
+        setProjects(projectsWithImages);
       } catch (error) {
         console.error('Error al cargar proyectos:', error);
         message.error('Error al cargar los proyectos');
@@ -152,7 +218,7 @@ const ProjectsContent: React.FC = () => {
     };
 
     fetchProjects();
-  }, [message]);
+  }, [message, user]);
 
   if (loading) {
     return (
@@ -203,6 +269,12 @@ const ProjectsContent: React.FC = () => {
                   <EnvironmentOutlined style={{ marginRight: 8 }} />
                   <Text>{project.ubicacion}</Text>
                 </div>
+
+                {project.cantidad_lotes && (
+                  <div style={{ marginBottom: 12 }}>
+                    <Text strong>Cantidad de Lotes:</Text> {project.cantidad_lotes}
+                  </div>
+                )}
                 
                 {project.caracteristicas && (
                   <div style={{ marginBottom: 12 }}>
@@ -214,6 +286,16 @@ const ProjectsContent: React.FC = () => {
                         </li>
                       ))}
                     </ul>
+                  </div>
+                )}
+
+                {/* Galería de imágenes */}
+                {project.images && project.images.length > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <Divider orientation="left">
+                      <PictureOutlined /> Imágenes
+                    </Divider>
+                    <ProjectImageGallery images={project.images} />
                   </div>
                 )}
 
@@ -285,11 +367,30 @@ const ProjectsContent: React.FC = () => {
           </Form.Item>
 
           <Form.Item
+            name="cantidad_lotes"
+            label="Cantidad de Lotes"
+          >
+            <Input type="number" min={0} />
+          </Form.Item>
+
+          <Form.Item
             name="caracteristicas"
             label="Características (formato JSON)"
             help="Ejemplo: {'habitaciones': 3, 'baños': 2}"
           >
             <Input.TextArea rows={4} />
+          </Form.Item>
+
+          <Form.Item
+            label="Imágenes del Proyecto"
+            help="Máximo 5 imágenes por proyecto"
+          >
+            <ProjectImageUploader
+              projectId={editingProject?.id || ''}
+              existingImages={projectImages}
+              onImagesChange={setProjectImages}
+              disabled={!editingProject}
+            />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
@@ -332,11 +433,30 @@ const ProjectsContent: React.FC = () => {
           </Form.Item>
 
           <Form.Item
+            name="cantidad_lotes"
+            label="Cantidad de Lotes"
+          >
+            <Input type="number" min={0} />
+          </Form.Item>
+
+          <Form.Item
             name="caracteristicas"
             label="Características (formato JSON)"
             help="Ejemplo: {'habitaciones': 3, 'baños': 2}"
           >
             <Input.TextArea rows={4} />
+          </Form.Item>
+
+          <Form.Item
+            label="Imágenes del Proyecto"
+            help="Máximo 5 imágenes por proyecto (Podrá subir imágenes después de crear el proyecto)"
+          >
+            <ProjectImageUploader
+              projectId=""
+              existingImages={[]}
+              onImagesChange={setProjectImages}
+              disabled={true}
+            />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
