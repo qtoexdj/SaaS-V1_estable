@@ -119,7 +119,7 @@ const ProjectsContent: React.FC = () => {
     form.setFieldsValue({
       nombre: project.nombre,
       ubicacion: project.ubicacion,
-      caracteristicas: project.caracteristicas ? JSON.stringify(project.caracteristicas) : ''
+      caracteristicas: project.caracteristicas || ''
     });
     setProjectImages(project.images || []);
     setIsModalVisible(true);
@@ -132,22 +132,12 @@ const ProjectsContent: React.FC = () => {
     }
 
     try {
-      let caracteristicas = {};
-      if (values.caracteristicas) {
-        try {
-          caracteristicas = JSON.parse(values.caracteristicas);
-        } catch (e) {
-          message.error('El formato de características no es válido');
-          return;
-        }
-      }
-
       const { data: newProject, error } = await supabase
         .from('proyectos')
         .insert([{
           nombre: values.nombre,
           ubicacion: values.ubicacion,
-          caracteristicas,
+          caracteristicas: values.caracteristicas || '',
           inmobiliaria_id: selectedInmobiliariaId
         }])
         .select()
@@ -181,22 +171,12 @@ const ProjectsContent: React.FC = () => {
     if (!editingProject) return;
 
     try {
-      let caracteristicas = {};
-      if (values.caracteristicas) {
-        try {
-          caracteristicas = JSON.parse(values.caracteristicas);
-        } catch (e) {
-          message.error('El formato de características no es válido');
-          return;
-        }
-      }
-
       const { error } = await supabase
         .from('proyectos')
         .update({
           nombre: values.nombre,
           ubicacion: values.ubicacion,
-          caracteristicas,
+          caracteristicas: values.caracteristicas || '',
           updated_at: new Date().toISOString()
         })
         .eq('id', editingProject.id);
@@ -209,7 +189,7 @@ const ProjectsContent: React.FC = () => {
         ...inm,
         projects: inm.projects?.map(p =>
           p.id === editingProject.id
-            ? { ...p, ...values, caracteristicas, images: projectImages }
+            ? { ...p, nombre: values.nombre, ubicacion: values.ubicacion, caracteristicas: values.caracteristicas || '', images: projectImages }
             : p
         )
       })));
@@ -361,11 +341,9 @@ const ProjectsContent: React.FC = () => {
                             </div>
                             
                             {project.caracteristicas && (
-                              <Space wrap>
-                                {Object.entries(project.caracteristicas).map(([key, value]) => (
-                                  <Tag key={key}>{`${key}: ${value}`}</Tag>
-                                ))}
-                              </Space>
+                              <div style={{ marginTop: 8 }}>
+                                <Text type="secondary">{project.caracteristicas}</Text>
+                              </div>
                             )}
 
                             {/* Galería de imágenes */}
@@ -419,8 +397,8 @@ const ProjectsContent: React.FC = () => {
 
           <Form.Item
             name="caracteristicas"
-            label="Características (formato JSON)"
-            help="Ejemplo: {'habitaciones': 3, 'baños': 2}"
+            label="Características"
+            help="Ingrese las características del proyecto"
           >
             <Input.TextArea rows={4} />
           </Form.Item>

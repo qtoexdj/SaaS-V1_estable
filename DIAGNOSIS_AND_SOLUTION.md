@@ -1,89 +1,147 @@
-# Diagnóstico y Solución: Error 504 (Outdated Optimize Dep)
+# Diagnóstico y Solución de Arquitectura Frontend
 
-## Problema
+## Aspectos Positivos
 
-El error que estás experimentando:
+### 1. Estructura del Proyecto
+- Organización clara de carpetas (components, pages, services, etc.)
+- Separación lógica entre componentes, páginas y servicios
+- Uso de layouts compartidos para mantener consistencia
 
-```
-http://localhost:3000/node_modules/.vite/deps/react-dom_client.js?v=6607c505 net::ERR_ABORTED 504 (Outdated Optimize Dep)
-```
+### 2. Autenticación y Autorización
+- Sistema robusto de manejo de sesiones con Supabase
+- Middleware de autenticación bien implementado
+- Control de acceso basado en roles (admin, dev, vende)
 
-Este error ocurre cuando las dependencias optimizadas por Vite se desactualizan. Vite optimiza las dependencias de `node_modules` para mejorar el rendimiento de desarrollo, pero estas dependencias optimizadas pueden quedar obsoletas en ciertas situaciones:
+### 3. Estado Global y Datos
+- Uso efectivo de Zustand para manejo de estado
+- Persistencia de datos de usuario
+- Servicios API bien estructurados con sistema de reintentos
 
-1. Después de actualizar dependencias (`npm install`, `yarn upgrade`, etc.)
-2. Al cambiar entre ramas de git con diferentes dependencias
-3. Problemas con el caché de Vite
-4. Conflictos entre versiones de dependencias
+### 4. TypeScript
+- Uso de tipos estáticos para mayor seguridad
+- Interfaces bien definidas para modelos de datos
+- Tipos compartidos con Supabase
 
-## Solución
+## Áreas de Mejora
 
-Para resolver este problema, sigue estos pasos:
+### 1. Tipado
+```typescript
+// En AuthContext.tsx - Reemplazar
+interface AuthContextType {
+  user: any; // ❌ Uso de any
+}
 
-### 1. Limpiar el caché de Vite
-
-Ejecuta uno de los siguientes comandos desde el directorio `frontend`:
-
-```bash
-# Si usas npm
-npm run dev -- --force
-
-# O elimina manualmente el directorio de caché
-rm -rf node_modules/.vite
-```
-
-### 2. Reiniciar el servidor de desarrollo
-
-```bash
-npm run dev
-```
-
-### 3. Si el problema persiste, prueba estas soluciones adicionales:
-
-a) **Reinstalar las dependencias**:
-```bash
-rm -rf node_modules
-npm install
-```
-
-b) **Actualizar Vite y el plugin de React**:
-```bash
-npm install vite@latest @vitejs/plugin-react@latest --save-dev
-```
-
-c) **Verificar conflictos de versiones**:
-Asegúrate de que no haya conflictos entre las versiones de React y React DOM.
-
-## Verificación de la solución
-
-Para verificar que la solución ha funcionado:
-
-1. Observa la consola del servidor de desarrollo. Deberías ver un mensaje como:
-   ```
-   Forced re-optimization of dependencies
-   ```
-
-2. Abre la aplicación en el navegador (http://localhost:3000) y verifica que:
-   - La aplicación carga correctamente
-   - No hay errores en la consola del navegador
-   - Las funcionalidades de la aplicación funcionan como se espera
-
-3. Si ves el mensaje "Forced re-optimization of dependencies" en la consola del servidor y la aplicación funciona correctamente, el problema ha sido resuelto.
-
-## Prevención
-
-Para evitar este problema en el futuro:
-
-1. Usa `npm run dev -- --force` después de actualizar dependencias
-2. Considera añadir un script en `package.json` para limpiar el caché:
-
-```json
-"scripts": {
-  "clean": "rm -rf node_modules/.vite",
-  "dev:clean": "npm run clean && npm run dev"
+// Por:
+interface AuthContextType {
+  user: CustomUser | null; // ✅ Tipo específico
 }
 ```
 
-## Referencias
+### 2. Rutas Protegidas
+El código actual tiene duplicación en la definición de rutas protegidas. Se sugiere crear un helper:
 
-- [Documentación de Vite sobre optimización de dependencias](https://vitejs.dev/guide/dep-pre-bundling.html)
-- [Problemas comunes de Vite y sus soluciones](https://vitejs.dev/guide/troubleshooting.html)
+```typescript
+// src/utils/routeHelpers.ts
+import { ReactNode } from 'react';
+import { PrivateRoute } from '../components/PrivateRoute';
+
+interface ProtectedRouteProps {
+  path: string;
+  element: ReactNode;
+  roles: string[];
+}
+
+export const createProtectedRoute = ({ path, element, roles }: ProtectedRouteProps) => ({
+  path,
+  element: (
+    <PrivateRoute requiredRoles={roles}>
+      {element}
+    </PrivateRoute>
+  )
+});
+```
+
+### 3. Documentación
+Se recomienda agregar documentación JSDoc a componentes y funciones importantes:
+
+```typescript
+/**
+ * Servicio principal para interactuar con la API de Supabase
+ * Proporciona métodos CRUD con reintentos automáticos
+ */
+export class ApiService {
+  /**
+   * Realiza operaciones de selección en la base de datos
+   * @param tableName Nombre de la tabla
+   * @param query Función para construir la consulta
+   * @returns Respuesta tipada de la API
+   */
+  static async select<T>(...) {...}
+}
+```
+
+### 4. Separación de Responsabilidades
+
+#### Estado Global
+Se recomienda dividir el userStore en módulos más pequeños:
+
+```typescript
+// src/stores/authStore.ts - Para autenticación
+// src/stores/userProfileStore.ts - Para datos de perfil
+// src/stores/inmobiliariaStore.ts - Para datos de inmobiliaria
+```
+
+#### Servicios API
+Crear servicios específicos para cada entidad:
+
+```typescript
+// src/services/userService.ts
+// src/services/projectService.ts
+// src/services/inmobiliariaService.ts
+```
+
+### 5. Testing
+Se recomienda agregar:
+- Tests unitarios para servicios y utilidades
+- Tests de integración para flujos importantes
+- Tests de componentes con React Testing Library
+
+## Recomendaciones Adicionales
+
+### 1. Error Boundaries
+Expandir el uso de ErrorBoundary más allá de autenticación:
+- Error boundaries para rutas principales
+- Error boundaries para componentes críticos
+
+### 2. Loading States
+Implementar un sistema consistente de estados de carga:
+- Skeleton loaders
+- Suspense boundaries
+- Estados de carga globales vs locales
+
+### 3. Performance
+- Implementar lazy loading para rutas
+- Memoización de componentes pesados
+- Optimización de re-renders
+
+### 4. Seguridad
+- Validación de entrada en formularios
+- Sanitización de datos
+- Protección contra XSS
+
+## Plan de Implementación
+
+1. Prioridad Alta:
+   - Corregir tipos any
+   - Implementar helper para rutas protegidas
+   - Agregar documentación básica
+
+2. Prioridad Media:
+   - Separar stores
+   - Crear servicios específicos
+   - Implementar tests básicos
+
+3. Prioridad Baja:
+   - Optimizar performance
+   - Expandir error boundaries
+   - Mejorar sistema de loading states

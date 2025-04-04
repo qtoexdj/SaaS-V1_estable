@@ -25,6 +25,7 @@ import Inmobiliaria_admin from './pages/Inmobiliaria_admin';
 import Projects_dev from './pages/Projects_dev';
 import { Users_dev } from './pages/Users_dev';
 import { RealEstate_dev } from './pages/RealEstate_dev';
+import Prospects_dev from './pages/Prospects_dev';
 import Profile from './pages/Profile';
 
 import './App.css';
@@ -105,6 +106,11 @@ function App() {
                         <Route path="real-estate" element={
                           <PrivateRoute requiredRoles={['dev']}>
                             <RealEstate_dev />
+                          </PrivateRoute>
+                        } />
+                        <Route path="prospects" element={
+                          <PrivateRoute requiredRoles={['dev']}>
+                            <Prospects_dev />
                           </PrivateRoute>
                         } />
                       </Route>

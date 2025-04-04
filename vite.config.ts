@@ -14,6 +14,14 @@ export default defineConfig({
     port: 3000,
     open: true,
     host: true,
+    proxy: {
+      '/api/webhook/project-update': {
+        target: 'https://mcpvectorsync-production.up.railway.app',
+        changeOrigin: true,
+        secure: false,
+        rewrite: () => '/webhook/project-update'
+      }
+    }
   },
   build: {
     outDir: 'dist',

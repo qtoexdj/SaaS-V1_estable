@@ -1,83 +1,122 @@
-/* Estilos para el logo */
-.logo {
-  height: 32px;
-  margin: 16px;
-  background: rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
+/* Estilos globales para mejorar contraste y profundidad */
+
+/* Cards con sombra suave */
+.ant-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s ease;
 }
 
-/* Estilos para el layout */
-.site-layout .site-layout-background {
-  background: #fff;
+.ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* Resetear algunos estilos globales */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
+/* Fondo para las páginas */
+.site-layout-background {
+  background: #f5f5f0;
 }
 
-/* Asegurar que el layout ocupe toda la altura */
-#components-layout-demo-custom-trigger {
-  min-height: 100vh;
-  height: 100%;
+/* Mejorar contraste de elementos en fondo crema */
+.ant-card,
+.ant-modal-content,
+.ant-dropdown-menu {
+  background: #ffffff !important;
 }
 
-.ant-layout {
-  min-height: 100vh;
-  height: 100%;
+/* Ajustar colores de bordes */
+.ant-card,
+.ant-modal-content,
+.ant-input,
+.ant-select-selector,
+.ant-btn {
+  border-color: #e8e8e8 !important;
 }
 
-/* Estilos específicos para el trigger button */
-.trigger {
-  padding: 0 24px;
-  font-size: 18px;
-  line-height: 64px;
-  cursor: pointer;
-  transition: color 0.3s;
+/* Mejorar visibilidad de elementos interactivos */
+.ant-btn:hover,
+.ant-input:hover,
+.ant-select-selector:hover {
+  border-color: #1890ff !important;
+  box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
 }
 
-.trigger:hover {
+/* Estilo para el menú lateral */
+.ant-menu.ant-menu-dark {
+  background: #001529;
+}
+
+/* Dar más espacio y contraste a los elementos del menú */
+.ant-menu-item {
+  margin: 4px 0 !important;
+  border-radius: 4px !important;
+}
+
+/* Estilo para las tablas */
+.ant-table-wrapper {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Estilo para las estadísticas */
+.ant-statistic {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Estilo para los modales */
+.ant-modal-content {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
+}
+
+/* Mejorar la visibilidad de las etiquetas */
+.ant-tag {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Estilo para los botones primarios */
+.ant-btn-primary {
+  box-shadow: 0 2px 4px rgba(24,144,255,0.2);
+}
+
+/* Estilo para las listas */
+.ant-list-item {
+  background: #ffffff;
+  margin: 8px 0;
+  padding: 16px !important;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Mejorar el contraste de los textos */
+.ant-typography {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.ant-typography.ant-typography-secondary {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* Estilo para los enlaces */
+a {
   color: #1890ff;
+  transition: color 0.3s ease;
 }
 
-/* Estilos para el layout principal */
-#components-layout-demo-custom-trigger .trigger {
-  padding: 0 24px;
-  font-size: 18px;
-  line-height: 64px;
-  cursor: pointer;
-  transition: color 0.3s;
+a:hover {
+  color: #40a9ff;
 }
 
-#components-layout-demo-custom-trigger .trigger:hover {
-  color: #1890ff;
-}
+/* Ajustes para dispositivos móviles */
+@media (max-width: 768px) {
+  .ant-card,
+  .ant-list-item {
+    margin: 4px 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
 
-#components-layout-demo-custom-trigger .logo {
-  height: 32px;
-  margin: 16px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.site-layout .site-layout-background {
-  background: #fff;
-}
-
-/* Asegurar que el contenido ocupe toda la altura disponible */
-.site-layout {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.ant-layout-content {
-  flex: 1;
+  .ant-statistic {
+    padding: 12px;
+  }
 }
