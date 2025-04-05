@@ -14,7 +14,8 @@ import {
   Row,
   Col,
   Statistic,
-  Image
+  Image,
+  Typography
 } from 'antd';
 import {
   HomeOutlined,
@@ -280,7 +281,10 @@ const ProjectsContent: React.FC = () => {
   };
 
   return (
-    <Layout.Content style={{ padding: 24 }}>
+    <Layout.Content style={{ padding: 0 }}>
+      <Typography.Title level={3} style={{ marginTop: 0, marginBottom: 16 }}>
+        Proyectos
+      </Typography.Title>
       {/* Dashboard Header */}
       <Row gutter={[24, 24]}>
         <Col span={24}>

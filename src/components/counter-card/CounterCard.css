@@ -1,0 +1,368 @@
+/* Estilos generales para tarjetas */
+.balance-card,
+.stat-counter-card {
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos específicos para tarjeta de balance */
+.balance-card {
+  background-color: #121212;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.balance-logo {
+  width: 32px;
+  height: 32px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: black;
+  font-size: 18px;
+}
+
+.balance-amount {
+  font-size: 40px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.currency {
+  font-size: 16px;
+  font-weight: normal;
+  opacity: 0.7;
+}
+
+.balance-details {
+  display: flex;
+  justify-content: flex-start;
+  gap: 24px;
+}
+
+.balance-stat {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.stat-arrow {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* Estilos para tarjetas de estadísticas */
+.stat-counter-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #f7f8fa;
+  color: #333;
+  height: 100%;
+}
+
+.stat-counter-card.deposited {
+  background-color: #f7fff1;
+}
+
+.stat-counter-card.withdrawn {
+  background-color: #f9f0ff;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 16px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.stat-description {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Para los iconos de flechas */
+.arrow-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+/* Top Fans */
+.top-fans-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.top-fans-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.top-fan-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.top-fan-item:last-child {
+  border-bottom: none;
+}
+
+.fan-info {
+  display: flex;
+  align-items: center;
+}
+
+.fan-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 12px;
+}
+
+.fan-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fan-name {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.fan-username {
+  font-size: 12px;
+  color: #888;
+}
+
+.fan-score {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+.score-icon {
+  margin-left: 8px;
+}
+
+/* Tabla de ventas */
+.sales-table-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.sales-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sales-table th {
+  text-align: left;
+  padding: 12px 8px;
+  color: #888;
+  font-weight: normal;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sales-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.post-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.post-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: bold;
+}
+
+.user-username {
+  font-size: 12px;
+  color: #888;
+}
+
+.purchase-amount {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+.amount-icon {
+  width: 16px;
+  height: 16px;
+  background-color: black;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 10px;
+  margin-left: 5px;
+}
+
+/* Gráfico de ingresos */
+.revenue-chart-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.revenue-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.timeframe-selector {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #888;
+}
+
+.dropdown-arrow {
+  margin-left: 8px;
+  font-size: 10px;
+}
+
+.revenue-chart-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chart-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin-bottom: 20px;
+}
+
+.donut-chart {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.donut-segment {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(50% 50%, 50% 0, calc(50% + (50% * cos(calc(var(--offset) * 0.01 * 6.28rad)))) calc(50% - (50% * sin(calc(var(--offset) * 0.01 * 6.28rad)))), calc(50% + (50% * cos(calc((var(--offset) + var(--percent)) * 0.01 * 6.28rad)))) calc(50% - (50% * sin(calc((var(--offset) + var(--percent)) * 0.01 * 6.28rad)))), 50% 50%);
+  background-color: var(--color);
+}
+
+.revenue-sources-list {
+  width: 100%;
+}
+
+.revenue-source-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.source-info {
+  display: flex;
+  align-items: center;
+}
+
+.source-color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.source-name {
+  color: #333;
+}
+
+.source-value {
+  font-weight: bold;
+}
+
+/* Timeframe selector */
+.timeframe-menu {
+  position: absolute;
+  top: 30px;
+  right: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.timeframe-option {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.timeframe-option:hover {
+  background-color: #f5f5f5;
+}
+
+.timeframe-option.active {
+  font-weight: bold;
+  color: blue;
+}

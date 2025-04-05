@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Space, Typography, Button, Tooltip, Image, Popconfirm, List } from 'antd';
+import { Card, Space, Typography, Button, Tooltip, Image, Popconfirm } from 'antd';
 import {
   EditOutlined,
   DeleteOutlined,
@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { Project } from '../types/project';
 
-const { Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 interface ProjectCardProps {
   project: Project;

@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
-import { Layout, Menu, theme, Dropdown, Space, Typography, Button, Spin, Avatar } from 'antd';
+import { Layout, Dropdown, Space, Button, Spin, Avatar, Input } from 'antd';
 import type { MenuProps } from 'antd';
-import { UserOutlined, LogoutOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import Sidebar from '../components/sidebar/Sidebar';
+import {
+  UserOutlined,
+  LogoutOutlined, 
+  MenuUnfoldOutlined, 
+  MenuFoldOutlined,
+  SearchOutlined,
+  BellOutlined,
+  PlusOutlined,
+  SettingOutlined
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { createBaseMenuItems, createDevMenuItems, createAdminMenuItems, createProfileMenuItem } from '../constants/menuItems';
 import type { CustomUser } from '../stores/userStore';
 import '../styles/MainLayout.css';
+import '../styles/global.css';
 
-const { Header, Sider, Content } = Layout;
-const { Text } = Typography;
+const { Header, Content } = Layout;
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -20,6 +30,16 @@ interface UserMenuProps {
 }
 
 const createUserMenuItems = ({ signOut }: UserMenuProps): MenuProps['items'] => [
+  {
+    key: 'profile',
+    icon: <UserOutlined />,
+    label: 'Perfil',
+  },
+  {
+    key: 'settings',
+    icon: <SettingOutlined />,
+    label: 'Configuración',
+  },
   {
     key: 'logout',
     icon: <LogoutOutlined />,
@@ -38,11 +58,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
-  const menuItems = React.useMemo(() => {
+  
+  // Preparamos los items del menú aunque no los usemos directamente aquí
+  // para mantener la lógica en caso de que se necesite en el futuro
+  React.useMemo(() => {
     const items = createBaseMenuItems(navigate);
     const role = user?.user_rol;
 
@@ -62,20 +81,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Avatar
         src={user.user_metadata?.avatar_url}
         icon={<UserOutlined />}
-        style={{
-          backgroundColor: user.user_metadata?.avatar_url ? 'transparent' : '#1890ff'
-        }}
       />
-      <Text strong>
-        {user.nombre ?? 'Usuario'}
-        {user.user_rol ? ` (${user.user_rol})` : ''}
-      </Text>
     </Space>
   );
 
   if (loading) {
     return (
-      <div className="loading-container" style={{ background: colorBgContainer }}>
+      <div className="loading-container">
         <Spin size="large">
           <div className="loading-content">Cargando...</div>
         </Spin>
@@ -84,43 +96,37 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }
 
   return (
-    <Layout id="components-layout-demo-custom-trigger">
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        className="site-layout-sider"
-      >
-        <div className="logo">
-          {collapsed ? 'S' : 'SaaS'}
-        </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={['dashboard']}
-          items={menuItems}
-        />
-      </Sider>
-      <Layout className="site-layout">
-        <Header className="site-layout-header" style={{ background: colorBgContainer }}>
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            className="trigger"
-          />
-          <div className="user-dropdown">
-            {user && (
-              <Dropdown menu={{ items: createUserMenuItems({ signOut }) }} trigger={['click']}>
-                {renderUserInfo(user)}
-              </Dropdown>
-            )}
+    <Layout id="components-layout-demo-custom-trigger" style={{ background: 'transparent' }}>
+      {/* Sidebar personalizado con bordes redondeados */}
+      <Sidebar collapsed={collapsed} />
+      <Layout className="site-layout" style={{ marginLeft: collapsed ? '100px' : '260px' }}>
+        <Header className="site-layout-header">
+          <div className="header-left">
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              className="trigger"
+            />
+            <Input 
+              prefix={<SearchOutlined />} 
+              placeholder="Buscar cuentas, proyectos, usuarios..." 
+              className="search-input" 
+            />
+          </div>
+          <div className="header-right">
+            <Button type="text" icon={<PlusOutlined />} className="header-icon" />
+            <Button type="text" icon={<BellOutlined />} className="header-icon" />
+            <div className="user-dropdown">
+              {user && (
+                <Dropdown menu={{ items: createUserMenuItems({ signOut }) }} trigger={['click']}>
+                  {renderUserInfo(user)}
+                </Dropdown>
+              )}
+            </div>
           </div>
         </Header>
-        <Content
-          className="site-layout-content"
-          style={{ borderRadius: borderRadiusLG }}
-        >
+        <Content className="site-layout-content">
           {children}
         </Content>
       </Layout>

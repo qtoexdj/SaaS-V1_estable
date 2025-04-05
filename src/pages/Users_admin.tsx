@@ -238,7 +238,9 @@ const UsersAdmin: React.FC = () => {
   };
 
   return (
-    <Layout.Content style={{ padding: 24 }}>
+    <Layout.Content style={{ padding: 0 }}>
+      <Title level={3} style={{ marginTop: 0, marginBottom: 16 }}>Vendedores</Title>
+      
       {/* Dashboard Stats */}
       <Card style={{ marginBottom: 24 }}>
         <Row gutter={[24, 24]}>
@@ -276,9 +278,8 @@ const UsersAdmin: React.FC = () => {
         </Row>
       </Card>
 
-      {/* Header */}
+      {/* Controls */}
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={2} style={{ margin: 0 }}>Vendedores</Title>
         <Button
           type="primary"
           icon={<PlusOutlined />}

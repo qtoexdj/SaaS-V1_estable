@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { PageHeader } from '@ant-design/pro-layout';
-import { Card, List, Space, Button, Modal, Form, Input, Select, Tag, message } from 'antd';
+import { Card, List, Space, Button, Modal, Form, Input, Select, Tag, message, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { supabase } from '../config/supabase';
 import TextArea from 'antd/es/input/TextArea';
@@ -139,26 +138,28 @@ const PushCampaigns_admin: React.FC = () => {
     : campaigns;
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Card>
-        <PageHeader
-          title="Campañas Push"
-          subTitle="Gestión de notificaciones push y campañas"
-          extra={[
-            <Button
-              key="new"
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                setEditingCampaign(null);
-                form.resetFields();
-                setModalVisible(true);
-              }}
-            >
-              Nueva Campaña
-            </Button>
-          ]}
-        />
+    <div style={{ padding: '0px' }}>
+      <Typography.Title level={3} style={{ marginTop: 0, marginBottom: 16 }}>
+        Campañas Push
+      </Typography.Title>
+      <Typography.Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
+        Gestión de notificaciones push y campañas
+      </Typography.Text>
+
+      <Card style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setEditingCampaign(null);
+              form.resetFields();
+              setModalVisible(true);
+            }}
+          >
+            Nueva Campaña
+          </Button>
+        </div>
 
         <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
           <Select

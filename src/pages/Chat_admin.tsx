@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { Layout, Typography, Space, Grid, theme, Input, List, Avatar, Badge, Card, Button } from 'antd';
+import { Typography, Space, Grid, theme, Input, List, Avatar, Badge, Card, Button, Row, Col } from 'antd';
 import { MessageOutlined, UserOutlined, SendOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -45,119 +45,68 @@ export const ChatAdmin: FC = () => {
   ];
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      height: '100%',
-      gap: token.padding 
-    }}>
-      <div style={{ 
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: token.marginLG 
-      }}>
-        <Title
-          level={screens.xs ? 5 : 4}
-          style={{
-            margin: 0,
-            fontSize: screens.xs ? '16px' : undefined
-          }}
-        >
-          <Space size={screens.xs ? 'small' : 'middle'}>
-            <MessageOutlined />
-            {screens.xs ? 'Chat' : 'Centro de Mensajes'}
-          </Space>
-        </Title>
-      </div>
+    <div style={{ margin: '0px' }}>
+      <Title level={3} style={{ marginTop: 0, marginBottom: 24 }}>
+        <Space>
+          <MessageOutlined />
+          {screens.xs ? '' : 'Centro de Mensajes'}
+        </Space>
+      </Title>
 
-      <Card
-        style={{
-          flex: 1,
-          backgroundColor: token.colorBgContainer,
-          borderRadius: token.borderRadiusLG,
-          height: 'calc(100vh - 180px)',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-        bodyStyle={{ 
-          height: '100%', 
-          padding: 0,
-          display: 'flex'
-        }}
-      >
-        <Layout style={{ flex: 1, backgroundColor: 'transparent' }}>
-          <Layout.Sider
-            width={300}
-            theme="light"
-            style={{
-              borderRight: `1px solid ${token.colorBorderSecondary}`,
-              height: '100%',
-              overflow: 'auto'
-            }}
-          >
-            <div style={{ padding: token.padding }}>
-              <Search
-                placeholder="Buscar chat..."
-                style={{ marginBottom: token.margin }}
-              />
-              <List
-                dataSource={mockContacts}
-                renderItem={(contact) => (
-                  <List.Item
-                    onClick={() => setSelectedChat(contact.id)}
-                    style={{
-                      cursor: 'pointer',
-                      backgroundColor: selectedChat === contact.id ? token.colorBgTextHover : 'transparent',
-                      padding: token.padding,
-                      borderRadius: token.borderRadius
-                    }}
-                  >
-                    <List.Item.Meta
-                      avatar={<Avatar icon={<UserOutlined />} />}
-                      title={
-                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                          <Text strong>{contact.name}</Text>
-                          <Text type="secondary" style={{ fontSize: '12px' }}>
-                            {contact.timestamp}
-                          </Text>
-                        </Space>
-                      }
-                      description={
-                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                          <Text type="secondary" ellipsis style={{ maxWidth: '180px' }}>
-                            {contact.lastMessage}
-                          </Text>
-                          {contact.unreadCount > 0 && (
-                            <Badge count={contact.unreadCount} />
-                          )}
-                        </Space>
-                      }
-                    />
-                  </List.Item>
-                )}
-                style={{
-                  maxHeight: 'calc(100vh - 240px)',
-                  overflowY: 'auto'
-                }}
-              />
-            </div>
-          </Layout.Sider>
-          
-          <Layout.Content style={{ 
-            padding: token.padding,
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%'
-          }}>
+      <Row gutter={[24, 24]}>
+        {/* Lista de Contactos */}
+        <Col xs={24} sm={8} md={8} lg={6}>
+          <Card>
+            <Search
+              placeholder="Buscar chat..."
+              style={{ marginBottom: 16 }}
+            />
+            <List
+              dataSource={mockContacts}
+              renderItem={(contact) => (
+                <List.Item
+                  onClick={() => setSelectedChat(contact.id)}
+                  style={{
+                    cursor: 'pointer',
+                    backgroundColor: selectedChat === contact.id ? token.colorBgTextHover : 'transparent',
+                    padding: 12,
+                    borderRadius: 8,
+                    marginBottom: 8
+                  }}
+                >
+                  <List.Item.Meta
+                    avatar={<Avatar icon={<UserOutlined />} />}
+                    title={
+                      <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                        <Text strong>{contact.name}</Text>
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                          {contact.timestamp}
+                        </Text>
+                      </Space>
+                    }
+                    description={
+                      <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                        <Text type="secondary" ellipsis style={{ maxWidth: '180px' }}>
+                          {contact.lastMessage}
+                        </Text>
+                        {contact.unreadCount > 0 && (
+                          <Badge count={contact.unreadCount} />
+                        )}
+                      </Space>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
+
+        {/* Área de Chat */}
+        <Col xs={24} sm={16} md={16} lg={18}>
+          <Card>
             {selectedChat ? (
-              <>
-                <div style={{
-                  flex: 1,
-                  overflowY: 'auto',
-                  padding: token.padding,
-                  marginBottom: token.margin
-                }}>
+              <div style={{ height: '600px', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16 }}>
                   {/* Área de mensajes */}
                   <Text type="secondary">Selecciona un mensaje para ver la conversación</Text>
                 </div>
@@ -180,20 +129,15 @@ export const ChatAdmin: FC = () => {
                     Enviar
                   </Button>
                 </Input.Group>
-              </>
+              </div>
             ) : (
-              <div style={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
+              <div style={{ height: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Text type="secondary">Selecciona un chat para comenzar</Text>
               </div>
             )}
-          </Layout.Content>
-        </Layout>
-      </Card>
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 };

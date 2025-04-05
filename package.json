@@ -12,7 +12,6 @@
     "generate-types:watch": "supabase gen types typescript --project-id \"${VITE_SUPABASE_PROJECT_ID}\" --schema public --watch > src/types/database.types.ts"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.6.1",
     "@ant-design/pro-components": "^2.8.6",
     "@illuminaresolutions/n8n-mcp-server": "^1.0.1",
     "@supabase/supabase-js": "^2.48.1",
@@ -29,6 +28,8 @@
     "zustand": "^4.5.1"
   },
   "devDependencies": {
+    "@ant-design/charts": "^2.2.7",
+    "@ant-design/icons": "^6.0.0",
     "@babel/traverse": "^7.26.9",
     "@babel/types": "^7.26.9",
     "@eslint/js": "^8.56.0",
@@ -39,10 +40,13 @@
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
     "@vitejs/plugin-react": "^4.2.1",
+    "dayjs": "^1.11.13",
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "globals": "^13.24.0",
+    "recharts": "^2.15.2",
+    "sass": "^1.86.3",
     "supabase": "^1.145.4",
     "typescript": "~5.3.3",
     "vite": "^5.4.14"

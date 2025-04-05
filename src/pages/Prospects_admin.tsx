@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { PageHeader } from '@ant-design/pro-layout';
 import { 
   Card, 
   List, 
@@ -406,17 +405,18 @@ const Prospects_admin: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: screens.xs ? '12px' : '24px' }}>
+    <div style={{ padding: screens.xs ? '0px' : '0px' }}>
+      <Typography.Title level={3} style={{ marginTop: 0, marginBottom: 16 }}>
+        Prospectos
+      </Typography.Title>
+      {!screens.xs && (
+        <Typography.Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
+          Seguimiento de leads vía WhatsApp
+        </Typography.Text>
+      )}
+      
       {/* Dashboard Header */}
       <Card>
-        <PageHeader
-          title="Prospectos"
-          subTitle={screens.xs ? null : "Seguimiento de leads vía WhatsApp"}
-          style={{
-            padding: screens.xs ? '0 0 12px' : '0 0 24px'
-          }}
-        />
-
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={6}>
             <Statistic

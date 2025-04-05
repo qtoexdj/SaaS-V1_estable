@@ -1,11 +1,10 @@
-import { Card, Form, Input, Button, App, Typography, Grid } from 'antd';
+import { Form, Input, Button, App, Grid } from 'antd';
 import { useState } from 'react';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 import { useUserStore } from '../stores/userStore';
-
-const { Title } = Typography;
+import logoLogin from '../utils/img/logo_login.webp';
+import fondoLogin from '../utils/img/fondo_login.webp';
 const { useBreakpoint } = Grid;
 
 interface LoginFormValues {
@@ -21,17 +20,6 @@ export const Login = () => {
   const screens = useBreakpoint();
   const [loading, setLoading] = useState(false);
 
-  const getTitleSize = () => {
-    if (screens.xs) return 3;
-    if (screens.sm) return 2;
-    return 2;
-  };
-
-  const getSubtitleSize = () => {
-    if (screens.xs) return 5;
-    if (screens.sm) return 4;
-    return 4;
-  };
 
   const handleLogin = async (values: LoginFormValues) => {
     try {
@@ -66,18 +54,8 @@ export const Login = () => {
       // 5. Inicializar el estado del usuario
       await initialize();
 
-      // 6. Navegar según el rol del usuario
-      const userRole = userData.user_rol;
-      
-      if (userRole === 'dev') {
-        navigate('/dev/users');
-      } else if (userRole === 'admin') {
-        navigate('/admin/users');
-      } else if (userRole === 'vende') {
-        navigate('/dashboard');
-      } else {
-        navigate('/unauthorized');
-      }
+      // Navegar al dashboard independientemente del rol
+      navigate('/dashboard');
 
     } catch (error: any) {
       let errorMessage = 'Error al iniciar sesión';
@@ -106,52 +84,47 @@ export const Login = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%)',
+        backgroundImage: `url(${fondoLogin})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         margin: 0,
         padding: '20px',
         overflow: 'auto'
       }}>
-      <Card style={{
+      <div style={{
         width: '90%',
-        maxWidth: 380,
+        maxWidth: 450,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '40px 20px',
         borderRadius: 8,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
         margin: '0 auto'
       }}>
         <div style={{
           textAlign: 'center',
-          marginBottom: screens.xs ? 24 : 32
+          marginBottom: screens.xs ? 30 : 40
         }}>
-          <Title
-            level={getTitleSize()}
+          <img
+            src={logoLogin}
+            alt="Logo"
             style={{
-              margin: 0,
-              color: '#1890ff',
-              fontWeight: 600,
-              fontSize: screens.xs ? '24px' : '32px'
+              width: screens.xs ? '180px' : '220px',
+              marginBottom: '20px'
             }}
-          >
-            SaaS
-          </Title>
-          <Title
-            level={getSubtitleSize()}
-            style={{
-              margin: screens.xs ? '4px 0 0' : '8px 0 0',
-              fontWeight: 400,
-              color: 'rgba(0,0,0,0.45)',
-              fontSize: screens.xs ? '16px' : '20px'
-            }}
-          >
-            Iniciar Sesión
-          </Title>
+          />
         </div>
+        
         <Form
           form={form}
           onFinish={handleLogin}
           style={{
-            padding: screens.xs ? '0 8px' : '0 16px'
+            width: '100%',
+            maxWidth: '380px'
           }}
-          size={screens.xs ? "middle" : "large"}
+          size="large"
         >
           <Form.Item
             name="email"
@@ -161,10 +134,16 @@ export const Login = () => {
             ]}
           >
             <Input
-              prefix={<UserOutlined style={{ color: '#1890ff' }} />}
-              placeholder="Email"
+              placeholder="Correo electrónico"
               size="large"
-              style={{ borderRadius: 6 }}
+              style={{
+                borderRadius: 8,
+                height: '55px',
+                fontSize: '16px',
+                padding: '10px 15px',
+                backgroundColor: '#fff',
+                color: '#333'
+              }}
             />
           </Form.Item>
           <Form.Item
@@ -174,13 +153,19 @@ export const Login = () => {
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined style={{ color: '#1890ff' }} />}
               placeholder="Contraseña"
               size="large"
-              style={{ borderRadius: 6 }}
+              style={{
+                borderRadius: 8,
+                height: '55px',
+                fontSize: '16px',
+                padding: '10px 15px',
+                backgroundColor: '#fff',
+                color: '#333'
+              }}
             />
           </Form.Item>
-          <Form.Item style={{ marginBottom: 0 }}>
+          <Form.Item style={{ marginBottom: 15 }}>
             <Button
               type="primary"
               htmlType="submit"
@@ -188,17 +173,32 @@ export const Login = () => {
               block
               size="large"
               style={{
-                height: screens.xs ? 40 : 45,
-                borderRadius: 6,
-                fontWeight: 500,
-                fontSize: screens.xs ? '14px' : '16px'
+                height: '55px',
+                borderRadius: 8,
+                fontWeight: 600,
+                fontSize: '18px',
+                backgroundColor: '#333',
+                border: 'none'
               }}
             >
               Iniciar Sesión
             </Button>
           </Form.Item>
+          
+          <div style={{ textAlign: 'center', marginTop: '15px' }}>
+            <Link
+              to="/forgot-password"
+              style={{
+                color: '#666',
+                fontSize: '16px',
+                textDecoration: 'none'
+              }}
+            >
+              Recuperar contraseña
+            </Link>
+          </div>
         </Form>
-      </Card>
+      </div>
     </div>
   );
 };

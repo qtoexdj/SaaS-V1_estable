@@ -1,13 +1,13 @@
 import React from 'react';
-import { MenuProps } from 'antd';
-import { 
+import {
   HomeOutlined,
   TeamOutlined,
   ProjectOutlined,
   ContactsOutlined,
   NotificationOutlined,
   MessageOutlined,
-  UserOutlined
+  UserOutlined,
+  QuestionCircleOutlined
 } from '@ant-design/icons';
 import { NavigateFunction } from 'react-router-dom';
 
@@ -99,3 +99,12 @@ export const createProfileMenuItem = (navigate: NavigateFunction): MenuItem => (
   label: 'Perfil',
   onClick: () => navigate('/profile'),
 });
+
+export const createUtilityMenuItems = (navigate: NavigateFunction): MenuItem[] => [
+  {
+    key: 'support',
+    icon: React.createElement(QuestionCircleOutlined),
+    label: 'Ayuda y Soporte',
+    onClick: () => navigate('/support'),
+  }
+];

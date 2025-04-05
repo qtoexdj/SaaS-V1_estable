@@ -11,8 +11,8 @@ export const AuthMiddleware = ({ children }: { children: React.ReactNode }) => {
     if (!userLoading) {
       const currentPath = window.location.pathname;
       
-      // No redirigir si ya estamos en login o unauthorized
-      if (currentPath === '/login' || currentPath === '/unauthorized') {
+      // No redirigir si ya estamos en login, forgot-password o unauthorized
+      if (currentPath === '/login' || currentPath === '/forgot-password' || currentPath === '/reset-password' || currentPath === '/unauthorized') {
         return;
       }
 

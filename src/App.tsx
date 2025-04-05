@@ -1,14 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { App as AntApp, ConfigProvider } from 'antd';
+import { App as AntApp } from 'antd';
 import { AuthMiddleware } from './middleware/auth';
 import { AuthErrorBoundary } from './components/AuthErrorBoundary';
 import { MainLayout } from './layouts/MainLayout';
 import { AuthProvider } from './contexts/AuthContext';
-import { theme } from './styles/theme';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Páginas
 import { Login } from './pages/Login';
 import { ResetPassword } from './pages/ResetPassword';
+import { ForgotPassword } from './pages/ForgotPassword';
 import { Dashboard } from './pages/Dashboard';
 import { PrivateRoute } from './components/PrivateRoute';
 import { Unauthorized } from './pages/Unauthorized';
@@ -27,12 +28,14 @@ import { Users_dev } from './pages/Users_dev';
 import { RealEstate_dev } from './pages/RealEstate_dev';
 import Prospects_dev from './pages/Prospects_dev';
 import Profile from './pages/Profile';
+import Support from './pages/Support';
 
 import './App.css';
+import './styles/global.css';
 
 function App() {
   return (
-    <ConfigProvider theme={theme}>
+    <ThemeProvider>
       <AuthErrorBoundary>
         <AntApp>
           <Router>
@@ -41,6 +44,7 @@ function App() {
                 <Routes>
                   {/* Rutas públicas - no requieren autenticación */}
                   <Route path="/login" element={<Login />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/unauthorized" element={<Unauthorized />} />
 
@@ -56,6 +60,9 @@ function App() {
                       
                       {/* Perfil de usuario */}
                       <Route path="profile" element={<Profile />} />
+                      
+                      {/* Ruta de Soporte */}
+                      <Route path="support" element={<Support />} />
 
                       {/* Rutas Admin */}
                       <Route path="admin">
@@ -122,7 +129,7 @@ function App() {
           </Router>
         </AntApp>
       </AuthErrorBoundary>
-    </ConfigProvider>
+    </ThemeProvider>
   );
 }
 

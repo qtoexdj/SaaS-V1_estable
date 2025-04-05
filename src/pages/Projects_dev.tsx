@@ -117,8 +117,8 @@ const ProjectsContent: React.FC = () => {
   const handleEdit = (project: Project) => {
     setEditingProject(project);
     form.setFieldsValue({
-      nombre: project.nombre,
-      ubicacion: project.ubicacion,
+      nombre: project.caracteristicas.nombre,
+      ubicacion: project.caracteristicas.ubicacion,
       caracteristicas: project.caracteristicas || ''
     });
     setProjectImages(project.images || []);
@@ -135,9 +135,11 @@ const ProjectsContent: React.FC = () => {
       const { data: newProject, error } = await supabase
         .from('proyectos')
         .insert([{
-          nombre: values.nombre,
-          ubicacion: values.ubicacion,
-          caracteristicas: values.caracteristicas || '',
+          caracteristicas: {
+            nombre: values.nombre,
+            ubicacion: values.ubicacion,
+            caracteristicas: values.caracteristicas || ''
+          },
           inmobiliaria_id: selectedInmobiliariaId
         }])
         .select()
@@ -174,9 +176,11 @@ const ProjectsContent: React.FC = () => {
       const { error } = await supabase
         .from('proyectos')
         .update({
-          nombre: values.nombre,
-          ubicacion: values.ubicacion,
-          caracteristicas: values.caracteristicas || '',
+          caracteristicas: {
+            nombre: values.nombre,
+            ubicacion: values.ubicacion,
+            caracteristicas: values.caracteristicas || ''
+          },
           updated_at: new Date().toISOString()
         })
         .eq('id', editingProject.id);
@@ -311,7 +315,7 @@ const ProjectsContent: React.FC = () => {
                         <List.Item>
                           <Card
                             size="small"
-                            title={project.nombre}
+                            title={project.caracteristicas.nombre}
                             extra={
                               <Space>
                                 <Button
@@ -337,12 +341,12 @@ const ProjectsContent: React.FC = () => {
                           >
                             <div style={{ marginBottom: 8 }}>
                               <EnvironmentOutlined style={{ marginRight: 8 }} />
-                              <Text>{project.ubicacion}</Text>
+                              <Text>{project.caracteristicas.ubicacion}</Text>
                             </div>
                             
                             {project.caracteristicas && (
                               <div style={{ marginTop: 8 }}>
-                                <Text type="secondary">{project.caracteristicas}</Text>
+                                <Text type="secondary">{project.caracteristicas.caracteristicas}</Text>
                               </div>
                             )}
 

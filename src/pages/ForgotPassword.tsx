@@ -1,37 +1,35 @@
 import { Form, Input, Button, App, Grid } from 'antd';
 import { useState } from 'react';
-import { supabase } from '../config/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import logoLogin from '../utils/img/logo_login.webp';
 import fondoLogin from '../utils/img/fondo_login.webp';
+import { resetPassword } from '../utils/resetPassword';
 
 const { useBreakpoint } = Grid;
 
-export const ResetPassword = () => {
+export const ForgotPassword = () => {
   const [form] = Form.useForm();
   const { message } = App.useApp();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const screens = useBreakpoint();
 
-  const handlePasswordReset = async (values: { password: string }) => {
+  const handleSubmit = async (values: { email: string }) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: values.password
-      });
-
-      if (error) {
-        throw error;
+      const result = await resetPassword(values.email);
+      
+      if (result.success) {
+        message.success(result.message);
+        // Esperar un momento antes de redirigir
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
+      } else {
+        message.error(result.message);
       }
-
-      message.success('Contraseña actualizada exitosamente');
-      // Esperar un momento antes de redirigir
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
     } catch (error: any) {
-      message.error(error.message || 'Error al actualizar la contraseña');
+      message.error('Error al solicitar el restablecimiento de contraseña');
     } finally {
       setIsLoading(false);
     }
@@ -39,7 +37,7 @@ export const ResetPassword = () => {
 
   return (
     <div
-      className="reset-password-container"
+      className="forgot-password-container"
       style={{
         minHeight: '100vh',
         width: '100%',
@@ -69,27 +67,35 @@ export const ResetPassword = () => {
           textAlign: 'center',
           marginBottom: screens?.xs ? 30 : 40
         }}>
-          <img
-            src={logoLogin}
-            alt="Logo"
+          <img 
+            src={logoLogin} 
+            alt="Logo" 
             style={{
               width: screens?.xs ? '180px' : '220px',
               marginBottom: '20px'
             }}
           />
-          <h2 style={{
-            fontSize: '22px',
-            fontWeight: 500,
+          <h2 style={{ 
+            fontSize: '22px', 
+            fontWeight: 500, 
             color: '#333',
             margin: '10px 0'
           }}>
-            Restablecer Contraseña
+            Recuperar Contraseña
           </h2>
+          <p style={{
+            color: '#666',
+            fontSize: '16px',
+            maxWidth: '320px',
+            margin: '0 auto'
+          }}>
+            Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña
+          </p>
         </div>
         
         <Form
           form={form}
-          onFinish={handlePasswordReset}
+          onFinish={handleSubmit}
           style={{
             width: '100%',
             maxWidth: '380px'
@@ -97,14 +103,14 @@ export const ResetPassword = () => {
           size="large"
         >
           <Form.Item
-            name="password"
+            name="email"
             rules={[
-              { required: true, message: 'Por favor ingresa tu nueva contraseña' },
-              { min: 6, message: 'La contraseña debe tener al menos 6 caracteres' }
+              { required: true, message: 'Por favor ingresa tu email' },
+              { type: 'email', message: 'Ingresa un email válido' }
             ]}
           >
-            <Input.Password
-              placeholder="Nueva contraseña"
+            <Input
+              placeholder="Correo electrónico"
               style={{
                 borderRadius: 8,
                 height: '55px',
@@ -115,33 +121,7 @@ export const ResetPassword = () => {
               }}
             />
           </Form.Item>
-          <Form.Item
-            name="confirmPassword"
-            dependencies={['password']}
-            rules={[
-              { required: true, message: 'Por favor confirma tu contraseña' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error('Las contraseñas no coinciden'));
-                },
-              }),
-            ]}
-          >
-            <Input.Password
-              placeholder="Confirmar contraseña"
-              style={{
-                borderRadius: 8,
-                height: '55px',
-                fontSize: '16px',
-                padding: '10px 15px',
-                backgroundColor: '#fff',
-                color: '#333'
-              }}
-            />
-          </Form.Item>
+          
           <Form.Item style={{ marginBottom: 15 }}>
             <Button
               type="primary"
@@ -158,15 +138,15 @@ export const ResetPassword = () => {
                 border: 'none'
               }}
             >
-              {isLoading ? 'Actualizando...' : 'Actualizar Contraseña'}
+              {isLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
             </Button>
           </Form.Item>
           
           <div style={{ textAlign: 'center', marginTop: '15px' }}>
-            <Link
-              to="/login"
-              style={{
-                color: '#666',
+            <Link 
+              to="/login" 
+              style={{ 
+                color: '#666', 
                 fontSize: '16px',
                 textDecoration: 'none'
               }}
