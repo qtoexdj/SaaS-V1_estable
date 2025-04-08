@@ -1,26 +1,30 @@
+# Configuración minimalista para Railway con Node.js
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "nginx -g 'daemon off;'"
+# Configuración de healthcheck - valores más permisivos para diagnóstico
 healthcheckPath = "/"
-healthcheckTimeout = 300
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 3
+healthcheckTimeout = 15
+restartPolicyType = "ALWAYS"
+healthcheckInterval = 15
 
+# Variables de entorno esenciales para la aplicación React
 [deploy.envs]
 NODE_ENV = "production"
-VITE_SUPABASE_URL = "${SUPABASE_URL}"
-VITE_SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}"
-VITE_APP_NAME = "SaaS Platform"
-VITE_APP_DESCRIPTION = "Panel de Administración"
+PORT = "8080"
+VITE_SUPABASE_URL = "https://ogzxogjatdmfisiyapdq.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nenhvZ2phdGRtZmlzaXlhcGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5OTA2NDYsImV4cCI6MjA1NTU2NjY0Nn0.RvgFS7mkmwl5_kVujksTUlZh49wg0L8zMoemXD6D1F4"
+VITE_APP_NAME = "Broky-Front"
+VITE_APP_DESCRIPTION = "Frontend of Broky"
 VITE_APP_VERSION = "1.0.0"
 VITE_API_TIMEOUT = "30000"
 VITE_API_RETRY_ATTEMPTS = "3"
 VITE_ENABLE_DARK_MODE = "true"
 VITE_ENABLE_NOTIFICATIONS = "true"
 
+# Puerto interno para el servicio
 [[services]]
-internal_port = 3004
+internal_port = 8080
 protocol = "tcp"

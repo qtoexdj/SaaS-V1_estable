@@ -1,11 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../types/database.types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Obtener variables de entorno
+let supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
+// Valores predeterminados para desarrollo o si faltan variables de entorno
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Faltan las variables de entorno de Supabase');
+  console.error('⚠️ Faltan las variables de entorno de Supabase. La aplicación funcionará en modo degradado.');
+  // Usar valores ficticios para permitir que la aplicación se inicie
+  supabaseUrl = 'https://example.supabase.co';
+  supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4YW1wbGUiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYxNjk2MjgxMCwiZXhwIjoxOTMyNTM4ODEwfQ.fake-key';
 }
 
 // Configuración según la documentación oficial

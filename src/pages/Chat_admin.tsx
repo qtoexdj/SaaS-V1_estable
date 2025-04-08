@@ -49,7 +49,7 @@ export const ChatAdmin: FC = () => {
       <Title level={3} style={{ marginTop: 0, marginBottom: 24 }}>
         <Space>
           <MessageOutlined />
-          {screens.xs ? '' : 'Centro de Mensajes'}
+          {screens.xs ? 'Chat' : 'Centro de Mensajes'}
         </Space>
       </Title>
 
