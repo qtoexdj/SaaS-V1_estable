@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ConfigProvider, theme as antdTheme } from 'antd';
-import { lightTheme, darkTheme, layout, antTheme as defaultAntTheme } from '../styles/colors';
+import { lightTheme, darkTheme, layout, antTheme as defaultAntTheme, Theme } from '../styles/colors';
 
 type ThemeMode = 'light' | 'dark';
 
 interface ThemeContextType {
   themeMode: ThemeMode;
   toggleTheme: () => void;
-  theme: typeof lightTheme;
+  theme: Theme;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -45,10 +45,19 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     algorithm: themeMode === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
     token: {
       ...defaultAntTheme.token,
+      // Colores bases
       colorBgBase: themeMode === 'dark' ? theme.backgroundSecondary : theme.backgroundSenary,
-      colorTextBase: theme.textPrimary,
+      colorTextBase: themeMode === 'dark' ? theme.textPrimary : theme.textDark,
+      colorText: themeMode === 'dark' ? theme.textLight : theme.textDark,
+      colorTextSecondary: themeMode === 'dark' ? theme.textLightSecondary : theme.textDarkSecondary,
       
-      // Usar los espaciados definidos en layout
+      // Colores específicos para componentes
+      colorBgContainer: themeMode === 'dark' ? theme.darkComponent : theme.senary,
+      colorBgElevated: themeMode === 'dark' ? theme.darkElevated : theme.senary,
+      colorBorder: themeMode === 'dark' ? theme.darkBorder : theme.quaternary,
+      colorBorderSecondary: themeMode === 'dark' ? theme.darkBorder : theme.quinary,
+      
+      // Espaciados
       padding: layout.spacing.md,
       paddingXS: layout.spacing.xs,
       paddingSM: layout.spacing.sm,
@@ -67,15 +76,41 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       Menu: {
         darkItemBg: theme.backgroundPrimary,
         darkItemSelectedBg: theme.brandPrimary,
-        darkItemHoverBg: theme.backgroundSecondary,
+        darkItemHoverBg: themeMode === 'dark' ? theme.darkHover : theme.backgroundSecondary,
+        itemHoverBg: themeMode === 'dark' ? theme.darkHover : theme.quinary,
       },
       Card: {
-        colorBgContainer: themeMode === 'dark' ? theme.backgroundTertiary : theme.backgroundSenary,
+        colorBgContainer: themeMode === 'dark' ? theme.cardBackground : theme.backgroundSenary,
+        colorBorderSecondary: themeMode === 'dark' ? theme.darkBorder : theme.quaternary,
       },
       Table: {
-        colorBgContainer: themeMode === 'dark' ? theme.backgroundTertiary : theme.backgroundSenary,
-        headerBg: themeMode === 'dark' ? theme.backgroundTertiary : theme.backgroundSenary,
+        colorBgContainer: themeMode === 'dark' ? theme.tableBg : theme.backgroundSenary,
+        headerBg: themeMode === 'dark' ? theme.tableHeaderBg : theme.quinary,
+        rowHoverBg: themeMode === 'dark' ? theme.darkHover : theme.quinary,
+        borderColor: themeMode === 'dark' ? theme.darkBorder : theme.quaternary,
       },
+      Input: {
+        colorBgContainer: themeMode === 'dark' ? theme.inputBg : theme.senary,
+        colorBorder: themeMode === 'dark' ? theme.darkBorder : theme.quaternary,
+        hoverBorderColor: theme.brandPrimary,
+        activeBorderColor: theme.brandPrimary,
+      },
+      Select: {
+        colorBgContainer: themeMode === 'dark' ? theme.inputBg : theme.senary,
+        optionSelectedBg: themeMode === 'dark' ? theme.darkHover : theme.brandPrimaryLighten,
+      },
+      Button: {
+        colorBgContainer: themeMode === 'dark' ? theme.buttonBg : theme.senary,
+        colorBgContainerDisabled: themeMode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+      },
+      Modal: {
+        contentBg: themeMode === 'dark' ? theme.darkComponent : theme.senary,
+        headerBg: themeMode === 'dark' ? theme.darkComponent : theme.senary,
+      },
+      List: {
+        colorBgContainer: themeMode === 'dark' ? theme.darkComponent : theme.senary,
+        colorBorderSecondary: themeMode === 'dark' ? theme.darkBorder : theme.quaternary,
+      }
     },
   };
 

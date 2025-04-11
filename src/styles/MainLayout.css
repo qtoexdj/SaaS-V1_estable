@@ -47,8 +47,9 @@ body.theme-dark #components-layout-demo-custom-trigger {
 .site-layout-header {
   padding: 0 24px;
   background: white;
-  position: relative;
-  z-index: 1;
+  position: sticky; /* Cambiado de relative a sticky */
+  top: 0; /* Necesario para position: sticky */
+  z-index: 10; /* Aumentado para asegurar que quede por encima de otros elementos */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -56,13 +57,15 @@ body.theme-dark #components-layout-demo-custom-trigger {
   color: #333;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  margin: 20px;
+  margin: 20px 20px 0 20px; /* Eliminado el margen inferior para evitar espacios en blanco */
   border-radius: 12px;
 }
 
 body.theme-dark .site-layout-header {
-  background: #171717;
-  color: #fff;
+  background: #2A2A2A; /* Usando darkElevated en lugar de negro */
+  color: #FAFAFA;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+  border-bottom: 1px solid #333333; /* Borde sutil para mejor distinción */
 }
 
 .header-left {
@@ -94,6 +97,7 @@ body.theme-dark .search-input {
   gap: 4px;
 }
 
+/* Iconos del header */
 .header-icon {
   color: #333;
   font-size: 18px;
@@ -113,12 +117,12 @@ body.theme-dark .search-input {
 }
 
 body.theme-dark .header-icon {
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.08);
+  color: #FAFAFA;
+  background-color: #2A2A2A; /* Manteniendo el color original para los elementos */
 }
 
 body.theme-dark .header-icon:hover {
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: #353535; /* Un tono más claro al hacer hover */
 }
 
 /* Sidebar */
@@ -177,11 +181,27 @@ body.theme-dark .site-layout-content {
 }
 
 body.theme-dark .trigger {
-  color: #ffffff;
+  color: #FAFAFA; /* Color claro para el botón en modo oscuro */
 }
 
-.trigger:hover {
-  color: var(--color-brand-primary, #26312d);
+body.theme-dark .trigger:hover {
+  color: #75fcd4; /* Color del branded primario al hacer hover */
+  background-color: rgba(117, 252, 212, 0.15); /* Fondo sutil con el color brand */
+}
+
+/* Estilo específico para el botón de menú móvil que está en el header */
+.mobile-menu-button {
+  font-size: 18px;
+}
+
+body.theme-dark .mobile-menu-button {
+  color: #FAFAFA;
+  background-color: transparent;
+}
+
+body.theme-dark .mobile-menu-button:hover {
+  color: #75fcd4;
+  background-color: rgba(117, 252, 212, 0.15);
 }
 
 /* Dropdown del usuario */
@@ -234,6 +254,79 @@ body.theme-dark .user-avatar:hover .ant-avatar {
 }
 
 /* Media queries para responsive */
+@media (max-width: 768px) {
+  .site-layout {
+    margin-left: 0 !important; /* Sobrescribe el margen del sidebar */
+  }
+  
+  .site-layout-header {
+    margin: 10px;
+    padding: 0 16px;
+    height: 56px;
+  }
+  
+  .site-layout-content {
+    margin: 10px;
+    padding: 12px;
+  }
+
+  .search-input {
+    width: 200px;
+  }
+  
+  .header-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 576px) {
+  .site-layout-header {
+    margin: 8px;
+    padding: 0 12px;
+    height: 50px;
+  }
+  
+  .header-left {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+  
+  .search-input {
+    width: 120px;
+    transition: width 0.3s;
+  }
+  
+  .search-input:focus {
+    width: 180px;
+  }
+  
+  .header-right {
+    gap: 2px;
+  }
+  
+  .header-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+  
+  .user-avatar .ant-avatar {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  
+  /* Ocultar elementos no esenciales en móviles */
+  .trigger + .search-input {
+    display: none;
+  }
+  
+  /* Mostrar icono de búsqueda separado en móvil */
+  .mobile-search-icon {
+    display: flex !important;
+  }
+}
+
 @media (max-width: 768px) {
   .site-layout-content {
     margin: 16px 0;

@@ -15,14 +15,21 @@ import {
   Col,
   Statistic,
   Image,
-  Typography
+  Typography,
+  Tooltip,
+  Tag,
+  Avatar
 } from 'antd';
 import {
   HomeOutlined,
   AppstoreOutlined,
   FileImageOutlined,
   PlusOutlined,
-  BarsOutlined
+  BarsOutlined,
+  EnvironmentOutlined,
+  CalendarOutlined,
+  EditOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import { supabase } from '../config/supabase';
 import { Project, ProjectImage } from '../types/project';
@@ -33,7 +40,7 @@ import { vectorSyncService } from '../services/vectorSyncService';
 import ProjectCard from '../components/ProjectCard';
 
 const { Search } = Input;
-
+const { Text } = Typography;
 
 interface Stats {
   totalProyectos: number;
@@ -357,21 +364,17 @@ const ProjectsContent: React.FC = () => {
             </div>
           ) : projects.length === 0 ? (
             <Empty description="No hay proyectos disponibles" />
-          ) : (
+          ) : viewMode === 'grid' ? (
             <List
-              grid={
-                viewMode === 'grid' 
-                  ? {
-                      gutter: 16,
-                      xs: 1,
-                      sm: 2,
-                      md: 2,
-                      lg: 3,
-                      xl: 4,
-                      xxl: 4,
-                    }
-                  : undefined
-              }
+              grid={{
+                gutter: 16,
+                xs: 1,
+                sm: 2,
+                md: 2,
+                lg: 3,
+                xl: 4,
+                xxl: 4,
+              }}
               dataSource={filteredProjects}
               renderItem={(project) => (
                 <List.Item>
@@ -386,6 +389,96 @@ const ProjectsContent: React.FC = () => {
                   />
                 </List.Item>
               )}
+            />
+          ) : (
+            // Vista de lista mejorada y responsiva
+            <List
+              className="project-list-view"
+              itemLayout="horizontal"
+              dataSource={filteredProjects}
+              renderItem={(project) => (
+                <List.Item
+                  style={{ padding: '16px', background: '#fff', marginBottom: '8px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
+                  actions={[
+                    <Tooltip title="Editar proyecto" key="edit">
+                      <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(project)} />
+                    </Tooltip>,
+                    <Tooltip title="Ver imágenes" key="images">
+                      <Button 
+                        type="text" 
+                        icon={<FileImageOutlined />} 
+                        onClick={() => {
+                          setSelectedProjectForGallery(project);
+                          setGalleryVisible(true);
+                        }}
+                        disabled={!project.images?.length}
+                      />
+                    </Tooltip>,
+                    <Tooltip title="Eliminar proyecto" key="delete">
+                      <Button 
+                        type="text" 
+                        danger 
+                        icon={<DeleteOutlined />} 
+                        onClick={() => handleDelete(project.id)} 
+                      />
+                    </Tooltip>
+                  ]}
+                >
+                  <List.Item.Meta
+                    avatar={
+                      project.images && project.images.length > 0 ? (
+                        <Avatar 
+                          shape="square" 
+                          size={64} 
+                          src={project.images[0].url}
+                          style={{ borderRadius: '4px' }}
+                        />
+                      ) : (
+                        <Avatar 
+                          shape="square" 
+                          size={64} 
+                          icon={<HomeOutlined />} 
+                          style={{ background: '#f0f2f5', borderRadius: '4px' }}
+                        />
+                      )
+                    }
+                    title={
+                      <Space size={[8, 16]} wrap>
+                        <Text strong style={{ fontSize: '16px' }}>{project.caracteristicas.nombre}</Text>
+                        {project.caracteristicas.valor && (
+                          <Tag color="green">{project.caracteristicas.valor}</Tag>
+                        )}
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                          <CalendarOutlined /> {new Date(project.created_at).toLocaleDateString()}
+                        </Text>
+                      </Space>
+                    }
+                    description={
+                      <div>
+                        <Space direction="vertical" size={2} style={{ width: '100%' }}>
+                          <Text>
+                            <EnvironmentOutlined style={{ marginRight: 8 }} />
+                            {project.caracteristicas.ubicacion}
+                          </Text>
+                          {project.caracteristicas.caracteristicas && typeof project.caracteristicas.caracteristicas === 'string' && (
+                            <div style={{ marginTop: 8 }}>
+                              {project.caracteristicas.caracteristicas.split(',').map((feature, index) => (
+                                feature.trim() && <Tag key={index} style={{ marginBottom: 4 }}>{feature.trim()}</Tag>
+                              ))}
+                            </div>
+                          )}
+                        </Space>
+                      </div>
+                    }
+                  />
+                </List.Item>
+              )}
+              pagination={{
+                pageSize: 10,
+                showTotal: (total) => `Total: ${total} proyectos`,
+                showSizeChanger: true,
+                responsive: true,
+              }}
             />
           )}
         </Col>

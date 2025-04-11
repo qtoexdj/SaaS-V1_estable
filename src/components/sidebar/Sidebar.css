@@ -11,6 +11,7 @@
   overflow-y: auto;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  z-index: 1000;
 }
 
 .logo {
@@ -195,4 +196,72 @@
 
 .dark-mode-toggle .ant-switch-checked:hover {
   background: #64ddb9;
+}
+
+/* Media queries para responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 240px !important; /* Sidebar más ancho para mostrar texto */
+    left: 0;
+    top: 0;
+    bottom: 0;
+    height: 100vh;
+    transform: translateX(-260px); /* Por defecto escondido */
+    border-radius: 0 12px 12px 0;
+  }
+  
+  .sidebar.visible {
+    transform: translateX(0); /* Mostrar al activar */
+  }
+  
+  .logo {
+    height: 80px;
+    padding: 15px;
+  }
+  
+  .menu-item {
+    padding: 10px 12px;
+  }
+  
+  /* Overlay para cuando el sidebar está visible */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  
+  .sidebar-overlay.visible {
+    display: block;
+  }
+}
+
+/* Estilo para botón hamburguesa móvil - eliminado ya que ahora está en el header */
+.mobile-trigger {
+  display: none; /* Lo mantenemos completamente oculto */
+}
+
+/* Solo mostrar en dispositivos realmente pequeños */
+@media (max-width: 576px) {
+  .sidebar {
+    width: 260px !important; /* Más ancho para una mejor experiencia */
+  }
+  
+  .dark-mode-toggle {
+    bottom: 20px;
+    left: 15px;
+    right: 15px;
+    padding: 12px;
+  }
+  
+  .menu-item {
+    padding: 10px 15px;
+    margin: 6px 0;
+  }
+  
+  /* Eliminados los estilos del botón hamburguesa original */
 }

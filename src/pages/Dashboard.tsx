@@ -540,14 +540,14 @@ export const Dashboard = () => {
   
   return (
   <div className="dashboard-container">
-    <Title level={3} style={{ marginTop: 0, marginBottom: 16 }}>
+    <Title level={3} style={{ marginTop: 0, marginBottom: 16, fontSize: '1.5rem', textAlign: 'center' }}>
       Dashboard {user?.inmobiliaria_id ? `- ${inmobiliariaName || 'Mi Inmobiliaria'}` : '(Modo Demo)'}
     </Title>
     
     
       {/* Fila de tarjetas de estadísticas principales */}
-      <Row gutter={[24, 24]}>
-        <Col xs={12} sm={6}>
+      <Row gutter={[16, 16]}>
+        <Col xs={12} sm={12} md={6}>
           <StatCard 
             value={stats.total} 
             label="Prospectos" 
@@ -555,7 +555,7 @@ export const Dashboard = () => {
             type="default" 
           />
         </Col>
-        <Col xs={12} sm={6}>
+        <Col xs={12} sm={12} md={6}>
           <StatCard 
             value={projects.length} 
             label="Proyectos" 
@@ -563,7 +563,7 @@ export const Dashboard = () => {
             type="deposited" 
           />
         </Col>
-        <Col xs={12} sm={6}>
+        <Col xs={12} sm={12} md={6}>
           <StatCard
             value={vendedores.length}
             label="Vendedores"
@@ -571,7 +571,7 @@ export const Dashboard = () => {
             type="default"
           />
         </Col>
-        <Col xs={12} sm={6}>
+        <Col xs={12} sm={12} md={6}>
           <StatCard 
             value={chats.length} 
             label="Chats" 
@@ -582,7 +582,7 @@ export const Dashboard = () => {
       </Row>
       
       {/* Fila de gráfico y prospectos por etapa */}
-      <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} md={8}>
           <Card title="Distribución de Prospectos" bordered={false}>
             <RevenueChart 
@@ -628,12 +628,12 @@ export const Dashboard = () => {
           <Card title="Estadísticas de Conversión" bordered={false}>
             <div style={{ textAlign: 'center', margin: '20px 0' }}>
               <Tooltip title="Tasa de conversión (prospectos calificados / total)">
-                <Title level={1} style={{ margin: 0 }}>{stats.conversionRate.toFixed(1)}%</Title>
+                <Title level={1} style={{ margin: 0, fontSize: '2.5rem' }}>{stats.conversionRate.toFixed(1)}%</Title>
               </Tooltip>
               <Text type="secondary">Tasa de Conversión</Text>
             </div>
             <Row gutter={[16, 16]}>
-              <Col span={12}>
+              <Col xs={12}>
                 <Tooltip title="Prospectos nuevos en la última semana">
                   <Card size="small">
                     <Statistic 
@@ -644,7 +644,7 @@ export const Dashboard = () => {
                   </Card>
                 </Tooltip>
               </Col>
-              <Col span={12}>
+              <Col xs={12}>
                 <Tooltip title="Tiempo promedio hasta decisión final">
                   <Card size="small">
                     <Statistic 
@@ -662,35 +662,37 @@ export const Dashboard = () => {
       </Row>
       
       {/* Proyectos y vendedores */}
-      <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} lg={12}>
           <Card title={<><ProjectOutlined /> Proyectos Actuales</>} extra={<a href="#">Ver todos</a>} bordered={false}>
-            <List
-              itemLayout="horizontal"
-              dataSource={projects.slice(0, 5)}
-              renderItem={project => (
-                <List.Item actions={[
-                  <Tooltip title="Unidades disponibles">
-                    <Tag color="blue">{project.unidades_disponibles || 0} unidades</Tag>
-                  </Tooltip>,
-                  <Tooltip title="Precio desde">
-                    <Tag color="green">${project.precio_desde?.toLocaleString() || 0}</Tag>
-                  </Tooltip>
-                ]}>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar 
-                        src={project.imagen_principal || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.nombre)}&background=random`} 
-                        shape="square" 
-                        size="large"
-                      />
-                    }
-                    title={project.nombre}
-                    description={project.descripcion?.substring(0, 60) + '...' || 'Sin descripción'}
-                  />
-                </List.Item>
-              )}
-            />
+            <div className="responsive-card-content">
+              <List
+                itemLayout="horizontal"
+                dataSource={projects.slice(0, 5)}
+                renderItem={project => (
+                  <List.Item actions={[
+                    <Tooltip title="Unidades disponibles" key="units">
+                      <Tag color="blue">{project.unidades_disponibles || 0} unidades</Tag>
+                    </Tooltip>,
+                    <Tooltip title="Precio desde" key="price">
+                      <Tag color="green">${project.precio_desde?.toLocaleString() || 0}</Tag>
+                    </Tooltip>
+                  ]}>
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar 
+                          src={project.imagen_principal || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.nombre)}&background=random`} 
+                          shape="square" 
+                          size="large"
+                        />
+                      }
+                      title={project.nombre}
+                      description={project.descripcion?.substring(0, 60) + '...' || 'Sin descripción'}
+                    />
+                  </List.Item>
+                )}
+              />
+            </div>
           </Card>
         </Col>
         <Col xs={24} lg={12}>
@@ -703,8 +705,8 @@ export const Dashboard = () => {
               grid={{
                 gutter: 16,
                 xs: 1,
-                sm: 1,
-                md: 1,
+                sm: 2,
+                md: 2,
                 lg: 1,
                 xl: 1,
               }}
@@ -722,9 +724,9 @@ export const Dashboard = () => {
                         body: { padding: '16px' }
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
                         <Avatar
-                          size={64}
+                          size={{xs: 40, sm: 48, md: 64}}
                           src={vendedor.avatar_url}
                           icon={<UserOutlined />}
                           style={{
@@ -732,19 +734,19 @@ export const Dashboard = () => {
                             marginRight: '16px'
                           }}
                         />
-                        <div style={{ flex: 1 }}>
-                          <Text strong style={{ fontSize: '16px', display: 'block' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <Text strong style={{ fontSize: '16px', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {vendedor.nombre}
                           </Text>
-                          <Text type="secondary" style={{ display: 'block', marginBottom: '8px' }}>
+                          <Text type="secondary" style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
                             {vendedor.email}
                           </Text>
-                          <div>
-                            <Tag color="blue" style={{ marginRight: '8px' }}>
-                              <TeamOutlined /> {vendedor.prospectos_asignados || 0} prospectos
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            <Tag color="blue">
+                              <TeamOutlined /> {vendedor.prospectos_asignados || 0}
                             </Tag>
                             <Tag color="green">
-                              <TrophyOutlined /> {vendedor.ventas_realizadas || 0} ventas
+                              <TrophyOutlined /> {vendedor.ventas_realizadas || 0}
                             </Tag>
                           </div>
                         </div>
@@ -759,7 +761,7 @@ export const Dashboard = () => {
       </Row>
       
       {/* Chats recientes y campañas push */}
-      <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} lg={12}>
           <Card title={<><MessageOutlined /> Chats Recientes</>} extra={<a href="#">Ver todos</a>} bordered={false}>
             <List
@@ -788,7 +790,7 @@ export const Dashboard = () => {
               dataSource={campanasPush.slice(0, 5)}
               renderItem={campana => (
                 <List.Item actions={[
-                  <Tag color={campana.estado === 'Enviada' ? 'green' : (campana.estado === 'Programada' ? 'blue' : 'orange')}>
+                  <Tag color={campana.estado === 'Enviada' ? 'green' : (campana.estado === 'Programada' ? 'blue' : 'orange')} key="status">
                     {campana.estado}
                   </Tag>
                 ]}>
@@ -801,7 +803,7 @@ export const Dashboard = () => {
                         {campana.destinatarios && (
                           <div>
                             <Tooltip title="Tasa de apertura">
-                              <Text type="secondary">
+                              <Text type="secondary" style={{ fontSize: '12px' }}>
                                 <CheckCircleOutlined /> {`${Math.round((campana.aperturas || 0) / campana.destinatarios * 100)}% (${campana.aperturas}/${campana.destinatarios})`}
                               </Text>
                             </Tooltip>
@@ -825,10 +827,10 @@ const Statistic = ({ title, value, prefix, suffix }: { title: string, value: num
   return (
     <div>
       <div style={{ fontSize: '14px', color: 'rgba(0, 0, 0, 0.45)' }}>{title}</div>
-      <div style={{ fontSize: '24px', color: 'rgba(0, 0, 0, 0.85)', marginTop: '4px' }}>
-        {prefix && <span style={{ marginRight: '8px' }}>{prefix}</span>}
+      <div style={{ fontSize: '20px', color: 'rgba(0, 0, 0, 0.85)', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        {prefix && <span style={{ marginRight: '4px' }}>{prefix}</span>}
         {value}
-        {suffix && <span style={{ marginLeft: '8px', fontSize: '14px' }}>{suffix}</span>}
+        {suffix && <span style={{ marginLeft: '4px', fontSize: '12px' }}>{suffix}</span>}
       </div>
     </div>
   );
